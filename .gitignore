@@ -1,1 +1,25 @@
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio project files
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+
+# Build output directories
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]ist/
+x64/
+x86/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
 .vs/
