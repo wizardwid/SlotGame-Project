@@ -1,24 +1,18 @@
-# Visual Studio 관련 파일들 무시
+# Visual Studio 관련 파일들
 .vs/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
+.vs2019/
+.vs2017/
 
-# 프로젝트 파일들 무시
-*.vcxproj
-*.vcxproj.user
-*.vcxproj.filters
-
-# 빌드 아웃풋 디렉토리 무시
+# 빌드 아웃풋 디렉토리 (디버그, 릴리즈 파일)
 [Dd]ebug/
 [Dd]ebugPublic/
-[Dd]ist/
+[Dd]Release/
 x64/
 x86/
+arm/
 
-# 윈도우 설치 파일들 무시
-*.cab
-*.msi
-*.msm
-*.msp
+# 개인 설정 파일들 (Git에 포함하지 않음)
+*.vcxproj.user
+*.user
+*.userosscache
+*.suo
