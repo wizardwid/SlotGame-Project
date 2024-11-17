@@ -1,25 +1,24 @@
-# Visual Studio files
+# Visual Studio 관련 파일들 무시
 .vs/
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
 
-# Visual Studio project files
+# 프로젝트 파일들 무시
 *.vcxproj
 *.vcxproj.user
 *.vcxproj.filters
 
-# Build output directories
+# 빌드 아웃풋 디렉토리 무시
 [Dd]ebug/
 [Dd]ebugPublic/
 [Dd]ist/
 x64/
 x86/
 
-# Windows Installer files
+# 윈도우 설치 파일들 무시
 *.cab
 *.msi
 *.msm
 *.msp
-.vs/
