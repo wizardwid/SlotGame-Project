@@ -1,65 +1,69 @@
 #include <SFML/Graphics.hpp>
-#include <iostream> // 에러 메시지를 출력하기 위해 필요
-
-using namespace std;
+#include <cmath>
 
 int main()
 {
-    // 1000x600 크기의 창 생성
-    sf::RenderWindow window(sf::VideoMode(1000, 600), "Screen");
+    // 창 생성
+    sf::RenderWindow window(sf::VideoMode(1024, 768), "Simple Slot Machine");
 
-    // mascote 이미지 로드
-    sf::Texture mascoteTexture;
-    if (!mascoteTexture.loadFromFile("mascote.png")) {
-        cerr << "mascote 이미지 출력 안됨" << endl;
-        return -1;
-    }
+    // 슬롯머신 본체
+    sf::RectangleShape machineBody(sf::Vector2f(300, 400));
+    machineBody.setFillColor(sf::Color(255, 200, 221)); // 연한 핑크
+    machineBody.setOutlineColor(sf::Color(180, 150, 200)); // 연한 보라색
+    machineBody.setOutlineThickness(5);
+    machineBody.setPosition(362, 184);
 
-    // uplever 이미지 로드
-    sf::Texture upleverTexture;
-    if (!upleverTexture.loadFromFile("uplever.png")) {
-        cerr << "uplever 이미지 출력 안됨" << endl;
-        return -1;
-    }
+    // 슬롯머신 얼굴 박스
+    sf::RectangleShape faceBox(sf::Vector2f(230, 100));
+    faceBox.setFillColor(sf::Color(245, 230, 240)); // 연한 분홍
+    faceBox.setOutlineColor(sf::Color(200, 180, 210)); // 연한 보라
+    faceBox.setOutlineThickness(3);
+    faceBox.setPosition(397, 214);
 
-    // downlever 이미지 로드
-    sf::Texture downleverTexture;
-    if (!downleverTexture.loadFromFile("downlever.png")) {
-        cerr << "downlever 이미지 출력 안됨" << endl;
-        return -1;
-    }
+    // 눈 추가
+    sf::CircleShape leftEye(12);
+    leftEye.setFillColor(sf::Color::White);
+    leftEye.setPosition(430, 234);  // 왼쪽 눈 위치 조정
 
-    // mascote 스프라이트(이미지나 애니메이션을 나타내는 객체) 생성
-    sf::Sprite mascote;
-    mascote.setTexture(mascoteTexture);
+    sf::CircleShape leftPupil(5);
+    leftPupil.setFillColor(sf::Color::Black);
+    leftPupil.setPosition(438, 240); // 왼쪽 동공 위치 조정
 
-    // uplever 스프라이트 생성
-    sf::Sprite uplever;
-    uplever.setTexture(upleverTexture);
+    sf::CircleShape rightEye(12);
+    rightEye.setFillColor(sf::Color::White);
+    rightEye.setPosition(560, 234);  // 오른쪽 눈 위치 조정
 
-    // downlever 스프라이트 생성
-    sf::Sprite downlever;
-    downlever.setTexture(downleverTexture);
+    sf::CircleShape rightPupil(5);
+    rightPupil.setFillColor(sf::Color::Black);
+    rightPupil.setPosition(568, 240); // 오른쪽 동공 위치 조정
 
-    // 이미지 크기 조정
-    mascote.setScale(0.5f, 0.5f);  // mascote 이미지 50% 크기로 축소
-    uplever.setScale(0.5f, 0.5f);  // uplever 이미지 50% 크기로 축소
-    downlever.setScale(0.5f, 0.5f); // downlever 이미지 50% 크기로 축소
+    // 코 추가
+    sf::CircleShape nose(4);
+    nose.setFillColor(sf::Color(200, 150, 200)); // 연보라
+    nose.setPosition(505, 260);
 
-    // 중앙 위치 계산
-    sf::FloatRect mascoteBounds = mascote.getGlobalBounds();
-    float centerX = (window.getSize().x - mascoteBounds.width) / 2.0f;
-    float centerY = (window.getSize().y - mascoteBounds.height) / 2.0f;
+    // 레버 본체
+    sf::RectangleShape lever(sf::Vector2f(20, 180));
+    lever.setFillColor(sf::Color(180, 150, 200)); // 연한 보라색
+    lever.setOrigin(7.5f, 100); // 회전 중심 설정
+    lever.setPosition(703, 288);
 
-    // mascote 이미지 중앙 위치
-    mascote.setPosition(centerX, centerY);
+    // 레버 손잡이
+    sf::CircleShape leverHandle(18);
+    leverHandle.setFillColor(sf::Color(205, 115, 213)); // 빨간 손잡이
+    leverHandle.setOrigin(16, 16); // 중심 설정
+    leverHandle.setPosition(lever.getPosition().x, lever.getPosition().y - 100);
 
-    // 여백을 줄임
-    float spacing = -56.0f;  // uplever 간격을 조절하기 위한 변수
-    uplever.setPosition(centerX + mascoteBounds.width + spacing, centerY);
-    downlever.setPosition(uplever.getPosition());
+    // 레버 연결 직사각형
+    sf::RectangleShape leverConnection(sf::Vector2f(50, 20)); // 직사각형 연결 도형
+    leverConnection.setFillColor(sf::Color(180, 150, 200)); // 연한 보라색
+    leverConnection.setPosition(665, 349);
 
-    bool upleverVisible = true; // uplever가 보이는지 안보이는지 확인
+    // 애니메이션 상태 변수
+    bool isMouseOverLever = false;
+    float leverAngle = 0.0f;
+    float connectionWidth = 50.0f; // 초기 너비
+    sf::Clock animationClock;
 
     // 게임 루프
     while (window.isOpen())
@@ -67,28 +71,61 @@ int main()
         sf::Event event;
         while (window.pollEvent(event))
         {
-            // 창을 닫을 때
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            // 마우스 클릭 시 uplever를 클릭했는지 확인
-            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-                // 클릭 위치 가져오기
-                sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
+            // 마우스 이동 시 레버 위에 있는지 확인
+            if (event.type == sf::Event::MouseMoved) {
+                sf::Vector2f mousePos(event.mouseMove.x, event.mouseMove.y);
+                isMouseOverLever = leverHandle.getGlobalBounds().contains(mousePos);
+            }
 
-                // uplever 클릭 시 uplever 숨기고 downlever 보이기
-                if (upleverVisible && uplever.getGlobalBounds().contains(mousePos)) {
-                    upleverVisible = false; // uplever 숨기기
-                }
+            // 마우스 버튼을 뗐을 때 복귀 상태로 전환
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+                isMouseOverLever = false;
             }
         }
-        window.clear(sf::Color::White); // 배경을 흰색으로 설정
-        window.draw(mascote); // mascote 이미지 그리기
-        if (upleverVisible)
-            window.draw(uplever); // uplever가 보일 때만 그리기
-        else
-            window.draw(downlever); // uplever가 사라지면 downlever 그리기
-        window.display(); // 화면 업데이트
+
+        // 레버 애니메이션
+        if (isMouseOverLever) {
+            // 레버를 당길 때
+            float elapsedTime = animationClock.restart().asSeconds();
+            leverAngle += 100.0f * elapsedTime; // 빠르게 당기기
+            if (leverAngle > 10.0f)
+                leverAngle = 10.0f;
+        }
+        else {
+            // 레버 복귀
+            float elapsedTime = animationClock.restart().asSeconds();
+            leverAngle -= 100.0f * elapsedTime; // 빠르게 복귀
+            if (leverAngle < 0.0f)
+                leverAngle = 0.0f;
+        }
+
+        // 레버 회전 및 손잡이 위치 조정
+        lever.setRotation(leverAngle);
+        leverHandle.setPosition(
+            lever.getPosition().x + 100 * sin(leverAngle * 3.14159 / 180),
+            lever.getPosition().y - 100 * cos(leverAngle * 3.14159 / 180)
+        );
+
+        // 레버 각도에 따라 연결 직사각형 너비 변경
+        connectionWidth = 50.0f - (leverAngle / 20.0f) * 30.0f; // 너비 감소
+        leverConnection.setSize(sf::Vector2f(connectionWidth, 20));
+
+        // 화면 그리기
+        window.clear(sf::Color::White);
+        window.draw(machineBody);    // 슬롯머신 본체
+        window.draw(faceBox);        // 얼굴 박스
+        window.draw(leftEye);        // 왼쪽 눈
+        window.draw(leftPupil);      // 왼쪽 동공
+        window.draw(rightEye);       // 오른쪽 눈
+        window.draw(rightPupil);     // 오른쪽 동공
+        window.draw(nose);           // 코
+        window.draw(lever);          // 레버
+        window.draw(leverHandle);    // 레버 손잡이
+        window.draw(leverConnection); // 레버와 머신본체를 연결하는 직사각형 도형
+        window.display();
     }
 
     return 0;
