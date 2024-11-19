@@ -1,71 +1,135 @@
-#include <SFML/Graphics.hpp>
+ï»¿#include <SFML/Graphics.hpp>
 #include <cmath>
 
-int main()
-{
-    // Ã¢ »ý¼º
+int main() {
+    // ì°½ ìƒì„±
     sf::RenderWindow window(sf::VideoMode(1024, 768), "Simple Slot Machine");
 
-    // ½½·Ô¸Ó½Å º»Ã¼
-    sf::RectangleShape machineBody(sf::Vector2f(300, 400));
-    machineBody.setFillColor(sf::Color(255, 200, 221)); // ¿¬ÇÑ ÇÎÅ©
-    machineBody.setOutlineColor(sf::Color(180, 150, 200)); // ¿¬ÇÑ º¸¶ó»ö
-    machineBody.setOutlineThickness(5);
-    machineBody.setPosition(362, 184);
+    // ì´ë¯¸ì§€ ë¡œë“œ
+    sf::Texture texture;
+    if (!texture.loadFromFile("logo.png")) {  // ì—¬ê¸°ì— ì´ë¯¸ì§€ ê²½ë¡œë¥¼ ìž…ë ¥í•˜ì„¸ìš”.
+        return -1;  // ì´ë¯¸ì§€ ë¡œë“œë¥¼ ì‹¤íŒ¨í•œ ê²½ìš° ì¢…ë£Œ
+    }
 
-    // ½½·Ô¸Ó½Å ¾ó±¼ ¹Ú½º
+    sf::Sprite imageSprite;
+    imageSprite.setTexture(texture);
+    imageSprite.setPosition(-430, -400);  // ì´ë¯¸ì§€ê°€ í™”ë©´ì˜ ìµœìƒë‹¨ì— ìœ„ì¹˜í•˜ë„ë¡ ì„¤ì •
+
+    // ìŠ¬ë¡¯ë¨¸ì‹  ë³¸ì²´ (ìž…ì²´ê° ì¶”ê°€)
+    sf::RectangleShape machineBodyFront(sf::Vector2f(300, 400));
+    machineBodyFront.setFillColor(sf::Color(209, 233, 246)); // ì—°í•œ í•‘í¬
+    machineBodyFront.setOutlineColor(sf::Color(205, 193, 255)); // ì—°í•œ ë³´ë¼ìƒ‰
+    machineBodyFront.setOutlineThickness(5);
+    machineBodyFront.setPosition(362, 270);
+
+    // ë’·ë©´ (ê·¸ë¦¼ìž íš¨ê³¼)
+    sf::RectangleShape machineBodyBack(sf::Vector2f(300, 400));
+    machineBodyBack.setFillColor(sf::Color(217, 217, 217));
+    machineBodyBack.setPosition(375, 276); // ìœ„ì¹˜ë¥¼ ì¡°ê¸ˆ ì´ë™ì‹œì¼œ ê·¸ë¦¼ìž ëŠë‚Œì„ ì¤Œ
+
+    // ì•žìª½ ì‚¬ê°í˜• (ìž…ì²´ê°)
+    sf::RectangleShape frontRectangle(sf::Vector2f(290, 100)); // ë³¸ì²´ë³´ë‹¤ ìž‘ì€ ì‚¬ê°í˜•
+    frontRectangle.setFillColor(sf::Color(209, 233, 246)); // ì—°í•œ ë¶„í™
+    frontRectangle.setOutlineColor(sf::Color(205, 193, 255)); // ì¢€ ë” ì§„í•œ ë³´ë¼ìƒ‰
+    frontRectangle.setOutlineThickness(3);
+    frontRectangle.setPosition(367, 435); // ë³¸ì²´ì™€ ê±°ì˜ ë¶™ì–´ ìžˆì§€ë§Œ ì•žìª½ìœ¼ë¡œ ì‚´ì§ ë‚˜ì™€ ë³´ì´ë„ë¡
+
+    // ì•žìª½ ì‚¬ê°í˜• ê·¸ë¦¼ìž
+    sf::RectangleShape frontRectangleShadow1(sf::Vector2f(295, 130)); // ê·¸ë¦¼ìžë„ ë³¸ì²´ì™€ ê°™ì€ í¬ê¸°
+    frontRectangleShadow1.setFillColor(sf::Color(205, 193, 255)); // ì•½ê°„ ë¶ˆíˆ¬ëª…í•œ ìƒ‰ìƒ
+    frontRectangleShadow1.setPosition(364, 538); // ì•½ê°„ ì•„ëž˜ë¡œ ì˜¤í”„ì…‹ì„ ì£¼ì–´ ê·¸ë¦¼ìž ëŠë‚Œì„ ì‚´ë¦¼
+
+    // ìŠ¬ë¡¯ë¨¸ì‹  ì–¼êµ´ ë°•ìŠ¤
     sf::RectangleShape faceBox(sf::Vector2f(230, 100));
-    faceBox.setFillColor(sf::Color(245, 230, 240)); // ¿¬ÇÑ ºÐÈ«
-    faceBox.setOutlineColor(sf::Color(200, 180, 210)); // ¿¬ÇÑ º¸¶ó
+    faceBox.setFillColor(sf::Color(248, 232, 238)); // ì—°í•œ ë¶„í™
+    faceBox.setOutlineColor(sf::Color(205, 193, 255)); // ì—°í•œ ë³´ë¼
     faceBox.setOutlineThickness(3);
-    faceBox.setPosition(397, 214);
+    faceBox.setPosition(397, 300);
 
-    // ´« Ãß°¡
+    // ëˆˆ ì¶”ê°€
     sf::CircleShape leftEye(12);
     leftEye.setFillColor(sf::Color::White);
-    leftEye.setPosition(430, 234);  // ¿ÞÂÊ ´« À§Ä¡ Á¶Á¤
+    leftEye.setPosition(430, 324);  // ì™¼ìª½ ëˆˆ ìœ„ì¹˜ ì¡°ì •
 
     sf::CircleShape leftPupil(5);
     leftPupil.setFillColor(sf::Color::Black);
-    leftPupil.setPosition(438, 240); // ¿ÞÂÊ µ¿°ø À§Ä¡ Á¶Á¤
+    leftPupil.setPosition(438, 330); // ì™¼ìª½ ë™ê³µ ìœ„ì¹˜ ì¡°ì •
 
     sf::CircleShape rightEye(12);
     rightEye.setFillColor(sf::Color::White);
-    rightEye.setPosition(560, 234);  // ¿À¸¥ÂÊ ´« À§Ä¡ Á¶Á¤
+    rightEye.setPosition(560, 324);  // ì˜¤ë¥¸ìª½ ëˆˆ ìœ„ì¹˜ ì¡°ì •
 
     sf::CircleShape rightPupil(5);
     rightPupil.setFillColor(sf::Color::Black);
-    rightPupil.setPosition(568, 240); // ¿À¸¥ÂÊ µ¿°ø À§Ä¡ Á¶Á¤
+    rightPupil.setPosition(568, 330); // ì˜¤ë¥¸ìª½ ë™ê³µ ìœ„ì¹˜ ì¡°ì •
 
-    // ÄÚ Ãß°¡
+    // ì½” ì¶”ê°€
     sf::CircleShape nose(4);
-    nose.setFillColor(sf::Color(200, 150, 200)); // ¿¬º¸¶ó
-    nose.setPosition(505, 260);
+    nose.setFillColor(sf::Color(240, 168, 208)); // ì—°ë³´ë¼
+    nose.setPosition(505, 340);
 
-    // ·¹¹ö º»Ã¼
+    // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 4ê°œ
+    sf::CircleShape circleButton1(20);
+    circleButton1.setFillColor(sf::Color(147, 223, 255)); // ë¹¨ê°„ìƒ‰
+    circleButton1.setPosition(400, 380);
+
+    sf::CircleShape circleButton2(20);
+    circleButton2.setFillColor(sf::Color(205, 193, 255)); // íŒŒëž€ìƒ‰
+    circleButton2.setPosition(460, 380);
+
+    sf::CircleShape circleButton3(20);
+    circleButton3.setFillColor(sf::Color(255, 246, 227)); // ì´ˆë¡ìƒ‰
+    circleButton3.setPosition(520, 380);
+
+    sf::CircleShape circleButton4(20);
+    circleButton4.setFillColor(sf::Color(255, 204, 234)); // ì´ˆë¡ìƒ‰
+    circleButton4.setPosition(580, 380);
+
+    sf::RectangleShape circleButton5(sf::Vector2f(40, 40));
+    circleButton5.setFillColor(sf::Color(255, 204, 234)); // ë¹¨ê°„ìƒ‰
+    circleButton5.setPosition(400, 480);
+
+    sf::RectangleShape circleButton6(sf::Vector2f(40, 40));
+    circleButton6.setFillColor(sf::Color(147, 223, 255)); // íŒŒëž€ìƒ‰
+    circleButton6.setPosition(460, 480);
+
+    sf::RectangleShape circleButton7(sf::Vector2f(40, 40));
+    circleButton7.setFillColor(sf::Color(205, 193, 255)); // ì´ˆë¡ìƒ‰
+    circleButton7.setPosition(520, 480);
+
+    sf::RectangleShape circleButton8(sf::Vector2f(40, 40));
+    circleButton8.setFillColor(sf::Color(255, 246, 227)); // ì´ˆë¡ìƒ‰
+    circleButton8.setPosition(580, 480);
+
+    // ì§ì‚¬ê°í˜• êµ¬ë©
+    sf::RectangleShape rectangleHole(sf::Vector2f(100, 10)); // ì§ì‚¬ê°í˜• ì—°ê²° ë„í˜•
+    rectangleHole.setFillColor(sf::Color(165, 148, 249)); // ì—°í•œ ë³´ë¼ìƒ‰
+    rectangleHole.setPosition(460, 450);
+
+    // ë ˆë²„ ë³¸ì²´
     sf::RectangleShape lever(sf::Vector2f(20, 180));
-    lever.setFillColor(sf::Color(180, 150, 200)); // ¿¬ÇÑ º¸¶ó»ö
-    lever.setOrigin(7.5f, 100); // È¸Àü Áß½É ¼³Á¤
-    lever.setPosition(703, 288);
+    lever.setFillColor(sf::Color(240, 193, 225)); // ì—°í•œ ë³´ë¼ìƒ‰
+    lever.setOrigin(7.5f, 100); // íšŒì „ ì¤‘ì‹¬ ì„¤ì •
+    lever.setPosition(703, 388);
 
-    // ·¹¹ö ¼ÕÀâÀÌ
+    // ë ˆë²„ ì†ìž¡ì´
     sf::CircleShape leverHandle(18);
-    leverHandle.setFillColor(sf::Color(205, 115, 213)); // »¡°£ ¼ÕÀâÀÌ
-    leverHandle.setOrigin(16, 16); // Áß½É ¼³Á¤
+    leverHandle.setFillColor(sf::Color(203, 157, 240)); // ë¹¨ê°„ ì†ìž¡ì´
+    leverHandle.setOrigin(16, 16); // ì¤‘ì‹¬ ì„¤ì •
     leverHandle.setPosition(lever.getPosition().x, lever.getPosition().y - 100);
 
-    // ·¹¹ö ¿¬°á Á÷»ç°¢Çü
-    sf::RectangleShape leverConnection(sf::Vector2f(50, 20)); // Á÷»ç°¢Çü ¿¬°á µµÇü
-    leverConnection.setFillColor(sf::Color(180, 150, 200)); // ¿¬ÇÑ º¸¶ó»ö
-    leverConnection.setPosition(665, 349);
+    // ë ˆë²„ ì—°ê²° ì§ì‚¬ê°í˜•
+    sf::RectangleShape leverConnection(sf::Vector2f(50, 20)); // ì§ì‚¬ê°í˜• ì—°ê²° ë„í˜•
+    leverConnection.setFillColor(sf::Color(240, 193, 225)); // ì—°í•œ ë³´ë¼ìƒ‰
+    leverConnection.setPosition(665, 449);
 
-    // ¾Ö´Ï¸ÞÀÌ¼Ç »óÅÂ º¯¼ö
+    // ì• ë‹ˆë©”ì´ì…˜ ìƒíƒœ ë³€ìˆ˜
     bool isMouseOverLever = false;
     float leverAngle = 0.0f;
-    float connectionWidth = 50.0f; // ÃÊ±â ³Êºñ
+    float connectionWidth = 50.0f; // ì´ˆê¸° ë„ˆë¹„
     sf::Clock animationClock;
 
-    // °ÔÀÓ ·çÇÁ
+    // ê²Œìž„ ë£¨í”„
     while (window.isOpen())
     {
         sf::Event event;
@@ -74,57 +138,70 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            // ¸¶¿ì½º ÀÌµ¿ ½Ã ·¹¹ö À§¿¡ ÀÖ´ÂÁö È®ÀÎ
+            // ë§ˆìš°ìŠ¤ ì´ë™ ì‹œ ë ˆë²„ ìœ„ì— ìžˆëŠ”ì§€ í™•ì¸
             if (event.type == sf::Event::MouseMoved) {
                 sf::Vector2f mousePos(event.mouseMove.x, event.mouseMove.y);
                 isMouseOverLever = leverHandle.getGlobalBounds().contains(mousePos);
             }
 
-            // ¸¶¿ì½º ¹öÆ°À» ¶ÃÀ» ¶§ º¹±Í »óÅÂ·Î ÀüÈ¯
+            // ë§ˆìš°ìŠ¤ ë²„íŠ¼ì„ ë—ì„ ë•Œ ë³µê·€ ìƒíƒœë¡œ ì „í™˜
             if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
                 isMouseOverLever = false;
             }
         }
 
-        // ·¹¹ö ¾Ö´Ï¸ÞÀÌ¼Ç
+        // ë ˆë²„ ì• ë‹ˆë©”ì´ì…˜
         if (isMouseOverLever) {
-            // ·¹¹ö¸¦ ´ç±æ ¶§
+            // ë ˆë²„ë¥¼ ë‹¹ê¸¸ ë•Œ
             float elapsedTime = animationClock.restart().asSeconds();
-            leverAngle += 100.0f * elapsedTime; // ºü¸£°Ô ´ç±â±â
+            leverAngle += 100.0f * elapsedTime; // ë¹ ë¥´ê²Œ ë‹¹ê¸°ê¸°
             if (leverAngle > 10.0f)
                 leverAngle = 10.0f;
         }
         else {
-            // ·¹¹ö º¹±Í
+            // ë ˆë²„ ë³µê·€
             float elapsedTime = animationClock.restart().asSeconds();
-            leverAngle -= 100.0f * elapsedTime; // ºü¸£°Ô º¹±Í
+            leverAngle -= 100.0f * elapsedTime; // ë¹ ë¥´ê²Œ ë³µê·€
             if (leverAngle < 0.0f)
                 leverAngle = 0.0f;
         }
 
-        // ·¹¹ö È¸Àü ¹× ¼ÕÀâÀÌ À§Ä¡ Á¶Á¤
+        // ë ˆë²„ íšŒì „ ë° ì†ìž¡ì´ ìœ„ì¹˜ ì¡°ì •
         lever.setRotation(leverAngle);
         leverHandle.setPosition(
             lever.getPosition().x + 100 * sin(leverAngle * 3.14159 / 180),
             lever.getPosition().y - 100 * cos(leverAngle * 3.14159 / 180)
         );
 
-        // ·¹¹ö °¢µµ¿¡ µû¶ó ¿¬°á Á÷»ç°¢Çü ³Êºñ º¯°æ
-        connectionWidth = 50.0f - (leverAngle / 20.0f) * 30.0f; // ³Êºñ °¨¼Ò
+        // ë ˆë²„ ê°ë„ì— ë”°ë¼ ì—°ê²° ì§ì‚¬ê°í˜• ë„ˆë¹„ ë³€ê²½
+        connectionWidth = 50.0f - (leverAngle / 20.0f) * 30.0f; // ë„ˆë¹„ ê°ì†Œ
         leverConnection.setSize(sf::Vector2f(connectionWidth, 20));
 
-        // È­¸é ±×¸®±â
+        // í™”ë©´ ê·¸ë¦¬ê¸°
         window.clear(sf::Color::White);
-        window.draw(machineBody);    // ½½·Ô¸Ó½Å º»Ã¼
-        window.draw(faceBox);        // ¾ó±¼ ¹Ú½º
-        window.draw(leftEye);        // ¿ÞÂÊ ´«
-        window.draw(leftPupil);      // ¿ÞÂÊ µ¿°ø
-        window.draw(rightEye);       // ¿À¸¥ÂÊ ´«
-        window.draw(rightPupil);     // ¿À¸¥ÂÊ µ¿°ø
-        window.draw(nose);           // ÄÚ
-        window.draw(lever);          // ·¹¹ö
-        window.draw(leverHandle);    // ·¹¹ö ¼ÕÀâÀÌ
-        window.draw(leverConnection); // ·¹¹ö¿Í ¸Ó½Åº»Ã¼¸¦ ¿¬°áÇÏ´Â Á÷»ç°¢Çü µµÇü
+        window.draw(imageSprite);
+        window.draw(machineBodyBack); // ìŠ¬ë¡¯ë¨¸ì‹  ë’·ë©´ (ê·¸ë¦¼ìž)
+        window.draw(machineBodyFront); // ìŠ¬ë¡¯ë¨¸ì‹  ë³¸ì²´ (ì•žë©´)
+        window.draw(frontRectangle); // ì•žìª½ ì‚¬ê°í˜• (ìž…ì²´ê° ì¶”ê°€)
+        window.draw(frontRectangleShadow1); // ì•žìª½ ì‚¬ê°í˜• ê·¸ë¦¼ìž1
+        window.draw(circleButton1);  // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 1
+        window.draw(circleButton2);  // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 2
+        window.draw(circleButton3);  // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 3
+        window.draw(circleButton4);  // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 4
+        window.draw(circleButton5);  // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 1
+        window.draw(circleButton6);  // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 2
+        window.draw(circleButton7);  // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 3
+        window.draw(circleButton8);  // ë™ê·¸ë¼ë¯¸ ë²„íŠ¼ 4
+        window.draw(faceBox);        // ì–¼êµ´ ë°•ìŠ¤
+        window.draw(leftEye);        // ì™¼ìª½ ëˆˆ
+        window.draw(leftPupil);      // ì™¼ìª½ ë™ê³µ
+        window.draw(rightEye);       // ì˜¤ë¥¸ìª½ ëˆˆ
+        window.draw(rightPupil);     // ì˜¤ë¥¸ìª½ ë™ê³µ
+        window.draw(nose);           // ì½”
+        window.draw(rectangleHole);  // ì§ì‚¬ê°í˜• êµ¬ë©
+        window.draw(lever);          // ë ˆë²„
+        window.draw(leverHandle);    // ë ˆë²„ ì†ìž¡ì´
+        window.draw(leverConnection); // ë ˆë²„ì™€ ë¨¸ì‹ ë³¸ì²´ë¥¼ ì—°ê²°í•˜ëŠ” ì§ì‚¬ê°í˜• ë„í˜•
         window.display();
     }
 

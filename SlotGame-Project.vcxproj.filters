@@ -23,13 +23,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="downlever.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="uplever.png">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="mascote.png">
+    <Image Include="logo.png">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

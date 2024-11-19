@@ -132,9 +132,7 @@
     <ClCompile Include="slot.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="downlever.png" />
-    <Image Include="mascote.png" />
-    <Image Include="uplever.png" />
+    <Image Include="logo.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
