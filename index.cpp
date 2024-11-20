@@ -3,7 +3,7 @@
 
 int main() {
     // 창 생성
-    sf::RenderWindow window(sf::VideoMode(1024, 768), "index");
+    sf::RenderWindow window(sf::VideoMode(1024, 768), "index", sf::Style::Close); // 창 최대화 비활성화
 
     // 이미지 로드
     sf::Texture texture;
@@ -135,7 +135,7 @@ int main() {
     // 직사각형 구멍
     sf::RectangleShape rectangleHole(sf::Vector2f(100, 10)); // 직사각형 연결 도형
     rectangleHole.setFillColor(sf::Color(165, 148, 249));
-    rectangleHole.setPosition(460, 550);
+    rectangleHole.setPosition(461, 550);
 
     // 레버 본체
     sf::RectangleShape lever(sf::Vector2f(20, 180));
