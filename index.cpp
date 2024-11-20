@@ -133,7 +133,7 @@ int main() {
     sf::Time elapsedTime = sf::Time::Zero;  // 경과 시간 추적 변수
 
     // 직사각형 구멍
-    sf::RectangleShape rectangleHole(sf::Vector2f(100, 10)); // 직사각형 연결 도형
+    sf::RectangleShape rectangleHole(sf::Vector2f(100, 10)); // 직사각형
     rectangleHole.setFillColor(sf::Color(165, 148, 249));
     rectangleHole.setPosition(461, 550);
 
@@ -176,7 +176,7 @@ int main() {
             }  // true or false
 
             // 마우스 버튼을 뗐을 때 복귀 상태로 전환
-            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Right) { //  마우스 버튼이 떨어졌을 때 & 오른쪽 마우스 버튼 클릭
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) { //  마우스 버튼이 떨어졌을 때 & 왼쪽 마우스 버튼 클릭
                 isMouseOverLever = false;
             }
         }
@@ -232,7 +232,7 @@ int main() {
 
         // 화면 그리기
         window.clear(sf::Color::White);
-        window.draw(imageSprite);
+        window.draw(imageSprite);   // 메인 로고
         window.draw(machineBodyBack); // 슬롯머신 뒷면 (그림자)
         window.draw(machineBodyFront); // 슬롯머신 본체 (앞면)
         window.draw(frontRectangle); // 앞쪽 사각형 (입체감 추가)
@@ -259,7 +259,7 @@ int main() {
         window.draw(lever);          // 레버
         window.draw(leverHandle);    // 레버 손잡이
         window.draw(leverConnection); // 레버와 머신본체를 연결하는 직사각형 도형
-        window.display();
+        window.display();             // 화면에 그린 내용을 출력
     }
 
     return 0;

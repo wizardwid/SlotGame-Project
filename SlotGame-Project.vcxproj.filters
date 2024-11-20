@@ -26,5 +26,8 @@
     <Image Include="logo.png">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="logo2.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>
