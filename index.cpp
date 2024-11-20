@@ -13,7 +13,7 @@ int main() {
 
     sf::Sprite imageSprite;
     imageSprite.setTexture(texture);
-    imageSprite.setPosition(-430, -400);  // 이미지가 화면 최상단에 위치하도록 설정
+    imageSprite.setPosition(-440, -440);  // 이미지가 화면 최상단에 위치하도록 설정
 
     // 슬롯머신 본체 (입체감 추가)
     sf::RectangleShape machineBodyFront(sf::Vector2f(300, 400));
@@ -85,20 +85,20 @@ int main() {
     bigCircle4.setFillColor(sf::Color(255, 204, 234));
     bigCircle4.setPosition(582, 380);
 
-    // 작은 오각형 4개
-    sf::CircleShape smallPentagon1(7, 5);
+    // 작은 육각형 4개
+    sf::CircleShape smallPentagon1(7, 6);
     smallPentagon1.setFillColor(sf::Color(218, 172, 255));
     smallPentagon1.setPosition(460, 450);
 
-    sf::CircleShape smallPentagon2(7, 5);
+    sf::CircleShape smallPentagon2(7, 6);
     smallPentagon2.setFillColor(sf::Color(218, 172, 255));
     smallPentagon2.setPosition(490, 450);
 
-    sf::CircleShape smallPentagon3(7, 5);
+    sf::CircleShape smallPentagon3(7, 6);
     smallPentagon3.setFillColor(sf::Color(218, 172, 255));
     smallPentagon3.setPosition(520, 450);
 
-    sf::CircleShape smallPentagon4(7, 5);
+    sf::CircleShape smallPentagon4(7, 6);
     smallPentagon4.setFillColor(sf::Color(218, 172, 255));
     smallPentagon4.setPosition(550, 450);
 
@@ -241,10 +241,10 @@ int main() {
         window.draw(bigCircle2);  // 큰 동그라미  2
         window.draw(bigCircle3);  // 큰 동그라미  3
         window.draw(bigCircle4);  // 큰 동그라미  4
-        window.draw(smallPentagon1);  // 작은 오각형  1
-        window.draw(smallPentagon2);  // 작은 오각형  2
-        window.draw(smallPentagon3);  // 작은 오각형  3
-        window.draw(smallPentagon4);  // 작은 오각형  4
+        window.draw(smallPentagon1);  // 작은 육각형  1
+        window.draw(smallPentagon2);  // 작은 육각형  2
+        window.draw(smallPentagon3);  // 작은 육각형  3
+        window.draw(smallPentagon4);  // 작은 육각형  4
         window.draw(rectangleButton1);  // 직사각형 버튼 1
         window.draw(rectangleButton2);  // 직사각형 버튼 2
         window.draw(rectangleButton3);  // 직사각형 버튼 3
