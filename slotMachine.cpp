@@ -13,62 +13,84 @@ int main() {
 
     sf::Sprite imageSprite;
     imageSprite.setTexture(texture);
-    imageSprite.setPosition(-440, -460);  // 이미지가 화면 최상단에 위치하도록 설정
+    imageSprite.setPosition(-480, -460);  // 이미지가 화면 최상단에 위치하도록 설정
 
-    // 뒷면 (그림자 효과)
-    sf::RectangleShape machineBodyBack(sf::Vector2f(820, 320));
-    machineBodyBack.setFillColor(sf::Color(217, 217, 217));
-    machineBodyBack.setPosition(75, 195);
+    // 뒷면1 (그림자 효과)
+    sf::RectangleShape machineBodyBack1(sf::Vector2f(820, 320));
+    machineBodyBack1.setFillColor(sf::Color(217, 217, 217));
+    machineBodyBack1.setPosition(75, 165);
+
+    // 뒷면2 (그림자 효과)
+    sf::RectangleShape machineBodyBack2(sf::Vector2f(330, 30));
+    machineBodyBack2.setFillColor(sf::Color(217, 217, 217));
+    machineBodyBack2.setPosition(565, 465);
 
     // 슬롯머신 몸체
     sf::RectangleShape machineBody(sf::Vector2f(800, 300));
     machineBody.setFillColor(sf::Color(191, 236, 255));
     machineBody.setOutlineColor(sf::Color(205, 193, 255));
     machineBody.setOutlineThickness(5);
-    machineBody.setPosition(80, 210);
+    machineBody.setPosition(80, 180);
 
     // 슬롯머신 안 박스
     sf::RectangleShape machineBox(sf::Vector2f(780, 280));
     machineBox.setFillColor(sf::Color(255, 251, 243));
     machineBox.setOutlineColor(sf::Color(205, 193, 255));
     machineBox.setOutlineThickness(3);
-    machineBox.setPosition(90, 220);
+    machineBox.setPosition(90, 190);
 
     // 선 생성
     const int lineCount = 4;
     const float lineWidth = 3;  // 선 두께
-    const float spacing = machineBox.getSize().x / (lineCount + 1);  // 선 간격
+    const float spacing = machineBox.getSize().x / (lineCount + 1);  // 선 간격 /  슬롯머신 박스의 가로 길이
     sf::RectangleShape lines[lineCount];
 
     for (int i = 0; i < lineCount; ++i) {
         lines[i].setSize(sf::Vector2f(lineWidth, machineBox.getSize().y)); // 박스 높이에 맞추기, 위아래 간격 추가
         lines[i].setFillColor(sf::Color(205, 193, 255));
         lines[i].setPosition(
-            machineBox.getPosition().x + spacing * (i + 1) - lineWidth / 2,
-            machineBox.getPosition().y// 위쪽에서 약간 내려오게 설정
+            machineBox.getPosition().x + spacing * (i + 1) - lineWidth / 2, // spacing: 선 사이의 간격 / - lineWidth / 2: 선의 두께의 절반
+            machineBox.getPosition().y // 슬롯머신 박스의 세로 길이
         );
     }
 
     // 직사각형1
-    sf::RectangleShape rectangle1(sf::Vector2f(750, 30)); // 직사각형
+    sf::RectangleShape rectangle1(sf::Vector2f(750, 30)); 
     rectangle1.setFillColor(sf::Color(227, 246, 255));
-    rectangle1.setPosition(104, 515);
+    rectangle1.setOutlineColor(sf::Color(205, 193, 255));
+    rectangle1.setOutlineThickness(3);
+    rectangle1.setPosition(104, 485);
+
+    // 직사각형1 그림자
+    sf::RectangleShape rectangle1Back(sf::Vector2f(750, 35));
+    rectangle1Back.setFillColor(sf::Color(217, 217, 217));
+    rectangle1Back.setPosition(117, 483);
 
     // 직사각형2
-    sf::RectangleShape rectangle2(sf::Vector2f(30, 50)); // 직사각형
+    sf::RectangleShape rectangle2(sf::Vector2f(30, 60)); 
     rectangle2.setFillColor(sf::Color(205, 193, 255));
-    rectangle2.setPosition(474, 515);
+    rectangle2.setPosition(474, 485);
+
+    // 직사각형2 그림자
+    sf::RectangleShape rectangle2Back(sf::Vector2f(30, 20));
+    rectangle2Back.setFillColor(sf::Color(217, 217, 217));
+    rectangle2Back.setPosition(480, 518);
 
     // 동그라미 (랜덤 색깔 나오는)
     sf::CircleShape circle(100);
     circle.setFillColor(sf::Color(250, 185, 255));
-    circle.setPosition(390, 560);
+    circle.setPosition(385, 535);
+
+    // 동그라미 그림자
+    sf::CircleShape circleBack(100);
+    circleBack.setFillColor(sf::Color(217, 217, 217));
+    circleBack.setPosition(396, 533);
 
     // 레버 본체
     sf::RectangleShape lever(sf::Vector2f(20, 260));
     lever.setFillColor(sf::Color(240, 193, 225));
     lever.setOrigin(7.5f, 100); // 회전 중심 설정
-    lever.setPosition(930, 315);
+    lever.setPosition(930, 285);
 
     // 레버 손잡이
     sf::CircleShape leverHandle(23);
@@ -79,7 +101,7 @@ int main() {
     // 레버 연결 직사각형
     sf::RectangleShape leverConnection(sf::Vector2f(50, 20)); // 직사각형 연결 도형
     leverConnection.setFillColor(sf::Color(240, 193, 225));
-    leverConnection.setPosition(880, 455);
+    leverConnection.setPosition(880, 425);
 
     // 애니메이션 상태 변수
     bool isMouseOverLever = false;
@@ -139,17 +161,21 @@ int main() {
         // 화면 그리기
         window.clear(sf::Color::White); 
         window.draw(imageSprite);       // 로고2
-        window.draw(machineBodyBack);   // 슬롯머신 몸체 그림자
+        window.draw(machineBodyBack1);   // 슬롯머신 몸체 그림자1
+        window.draw(machineBodyBack2);   // 슬롯머신 몸체 그림자2
         window.draw(machineBody);       // 슬롯머신 몸체
         window.draw(machineBox);        // 슬롯머신 안 박스
         for (int i = 0; i < lineCount; ++i) {
             window.draw(lines[i]);      // 각 선 그리기
         }
-        window.draw(rectangle1);     // 직사각형1
-        window.draw(rectangle2);     // 직사각형2
-        window.draw(circle);     // 직사각형2
-        window.draw(lever);          // 레버
-        window.draw(leverHandle);    // 레버 손잡이
+        window.draw(rectangle1Back);  // 직사각형1 그림자
+        window.draw(rectangle1);      // 직사각형1
+        window.draw(rectangle2Back);  // 직사각형2 그림자
+        window.draw(rectangle2);      // 직사각형2
+        window.draw(circleBack);      // 동그라미 그림자
+        window.draw(circle);          // 동그라미
+        window.draw(lever);           // 레버
+        window.draw(leverHandle);     // 레버 손잡이
         window.draw(leverConnection); // 레버와 머신본체를 연결하는 직사각형 도형
         window.display(); 
     }
