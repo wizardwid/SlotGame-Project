@@ -2,6 +2,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <random>
 
 using namespace std;
 
@@ -34,10 +35,11 @@ public:
     sf::RectangleShape innerBox;
     sf::RectangleShape shadow;
     std::vector<sf::RectangleShape> symbols;  // 슬롯 내부의 심볼들
-    sf::Clock animationClock;
-    bool isAnimating = false;
-    float scrollSpeed = 500.f;  // 심볼 스크롤 속도
-    int numSymbols = 5; // 슬롯에 표시되는 심볼 개수
+    sf::Clock animationClock;                 // 애니메이션 타이머
+    bool isAnimating = false;                 // 애니메이션 상태
+    bool showInnerBoxColor = false;           // innerBox에 랜덤 색상을 표시할지 여부
+    float scrollSpeed = 450.f;                // 심볼 스크롤 속도
+    int numSymbols = 4;                       // 슬롯에 표시되는 심볼 개수
 
     SlotReel() {
         // 슬롯 릴 본체
@@ -47,8 +49,8 @@ public:
         body.setOutlineThickness(5);
         body.setPosition(230, 185);
 
-        // 내부 박스
-        innerBox.setSize(sf::Vector2f(480, 140));  // 내부 박스 크기
+        // 내부 박스 (초기 상태로 계속 보이도록 설정)
+        innerBox.setSize(sf::Vector2f(480, 140));
         innerBox.setFillColor(sf::Color(249, 245, 246));
         innerBox.setOutlineColor(sf::Color(203, 157, 240));
         innerBox.setOutlineThickness(3);
@@ -58,13 +60,78 @@ public:
         shadow.setSize(sf::Vector2f(520, 175));
         shadow.setFillColor(sf::Color(217, 217, 217));
         shadow.setPosition(225, 170);
+
+        for (int i = 0; i < numSymbols; ++i) {
+            sf::RectangleShape symbol(sf::Vector2f(480, 40)); // 심볼 크기 설정
+            symbol.setPosition(240, 180 + i * 40);            // 심볼 위치 설정
+            symbol.setFillColor(sf::Color(249, 245, 246));
+            symbols.push_back(symbol);
+        }
+
+    }
+
+    // 랜덤 색상 생성 함수
+    sf::Color getRandomColor() {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<int> dis(0, 255);
+
+        return sf::Color(dis(gen), dis(gen), dis(gen)); // 랜덤 RGB 값 생성
+    }
+
+    // 심볼 애니메이션 업데이트
+    void update() {
+        if (isAnimating) {
+            // 현재 시간 기준으로 deltaTime 계산
+            float deltaTime = animationClock.getElapsedTime().asSeconds();
+
+            // deltaTime을 0으로 초기화하여 다음 업데이트에서 계속 새로 시작
+            animationClock.restart();
+
+            for (auto& symbol : symbols) {
+                // 심볼을 위로 스크롤
+                symbol.move(0.f, -scrollSpeed * deltaTime);
+
+                // 화면 밖으로 나가면 다시 아래로 보내기
+                if (symbol.getPosition().y + symbol.getSize().y < 236) {
+                    symbol.setPosition(240, 180 + (numSymbols - 1) * 40); // 다시 아래로 설정
+                    symbol.setFillColor(getRandomColor());               // 심볼 색상도 랜덤으로 변경
+                }
+            }
+        }
     }
 
     // 화면에 그리기
     void draw(sf::RenderWindow& window) {
         window.draw(shadow);
         window.draw(body);
-        window.draw(innerBox);
+        window.draw(innerBox);  // innerBox는 애니메이션 도중에도 계속 보이도록
+
+        if (isAnimating) {
+            // 애니메이션 중에는 심볼들을 그린다
+            for (auto& symbol : symbols) {
+                window.draw(symbol);
+            }
+        }
+        else if (showInnerBoxColor) {
+            // 애니메이션이 끝난 후에는 랜덤 색상이 innerBox 위에 표시되도록
+            window.draw(innerBox);  // innerBox만 계속 보이게
+        }
+    }
+
+    // 애니메이션 시작
+    void startAnimation() {
+        isAnimating = true;
+        innerBox.setFillColor(sf::Color(249, 245, 246));
+        showInnerBoxColor = false; // 애니메이션 중에는 innerBox 랜덤 색상 숨김
+        animationClock.restart();
+    }
+
+    // 애니메이션 정지
+    void stopAnimation() {
+        isAnimating = false;
+        innerBox.setFillColor(getRandomColor());  // innerBox에 랜덤 색상 표시
+        showInnerBoxColor = true; // innerBox가 랜덤 색상으로 표시되도록
     }
 };
 
@@ -152,7 +219,7 @@ public:
     sf::RectangleShape leverBody, connection;
     sf::CircleShape handle;
     float angle = 0.0f; // 레버 회전 각도 변수
-    float connectionWidth = 50.0f; 
+    float connectionWidth = 50.0f;
     sf::Clock animationClock;
 
     Lever() {
@@ -209,6 +276,9 @@ public:
     }
 };
 
+// 전역변수
+SlotReel slotReel;
+
 // 게임 클래스
 class Game {
 private:
@@ -216,7 +286,6 @@ private:
     SlotMachine slotMachine;
     Lever lever;
     Logo logo;
-    SlotReel slotReel;
 
 public:
     // 창 생성
@@ -242,12 +311,23 @@ public:
 
                 // 마우스 버튼을 뗐을 때 복귀 상태로 전환
                 if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) { //  마우스 버튼이 떨어졌을 때 & 왼쪽 마우스 버튼 클릭
-                    isMouseOverLever = false;
+                    if (isMouseOverLever) {
+                        isMouseOverLever = false;
+
+                        if (slotReel.isAnimating) {
+                            slotReel.stopAnimation(); // 슬롯랄 애니메이션 정지
+                        }
+
+                        else {
+                            slotReel.startAnimation(); // 슬롯릴 애니메이션 시작
+                        }
+                    }
                 }
             }
 
             // 업데이트
             lever.update(isMouseOverLever);
+            slotReel.update();
 
             // 화면에 그리기
             window.clear(sf::Color::White);
