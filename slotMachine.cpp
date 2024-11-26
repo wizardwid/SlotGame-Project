@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 #include <random>
+#include <cstdlib>  // rand() 함수 사용을 위한 헤더
+#include <ctime>    // srand() 함수 사용을 위한 헤더
 
 using namespace std;
 
@@ -127,15 +129,17 @@ public:
         animationClock.restart();
     }
 
-    // 애니메이션 정지
-    void stopAnimation() {
+    // 애니메이션 정지 및 랜덤 색상 반환
+    sf::Color stopAnimation() {
         isAnimating = false;
-        innerBox.setFillColor(getRandomColor());  // innerBox에 랜덤 색상 표시
-        showInnerBoxColor = true; // innerBox가 랜덤 색상으로 표시되도록
+        sf::Color randomColor = getRandomColor(); // 랜덤 색상 생성
+        innerBox.setFillColor(randomColor);       // innerBox에 랜덤 색상 설정
+        showInnerBoxColor = true;
+        return randomColor;                      // 생성된 랜덤 색상을 반환
     }
 };
 
-// 슬롯머신 본체 클래스
+// 슬롯머신 클래스
 class SlotMachine {
 public:
     sf::RectangleShape body;
@@ -145,6 +149,7 @@ public:
     sf::RectangleShape rectangle;
     sf::RectangleShape rectangleShadow;
     std::vector<sf::RectangleShape> lines;
+    std::vector<sf::RectangleShape> colorSections; // 각 공간을 위한 색상 칸들 (5개)
 
     SlotMachine() {
         // 슬롯머신 본체
@@ -186,6 +191,16 @@ public:
             lines.push_back(line);
         }
 
+        // 색을 채울 공간 생성 (선 사이 구간)
+        srand(static_cast<unsigned int>(time(0))); // 랜덤 시드 설정
+
+        for (int i = 0; i < lineCount + 1; ++i) {
+            sf::RectangleShape section(sf::Vector2f(spacing, innerBox.getSize().y)); // 각 구간의 크기 설정
+            section.setPosition(innerBox.getPosition().x + i * spacing, innerBox.getPosition().y);
+            section.setFillColor(sf::Color(255, 251, 243));
+            colorSections.push_back(section);
+        }
+
         // 직사각형
         rectangle.setSize(sf::Vector2f(750, 30));
         rectangle.setFillColor(sf::Color(227, 246, 255));
@@ -199,15 +214,46 @@ public:
         rectangleShadow.setPosition(117, 655);
     }
 
+    // 랜덤 색상 생성 함수
+    sf::Color randomColor() {
+        int r = rand() % 256; // 0~255 사이의 랜덤 값
+        int g = rand() % 256;
+        int b = rand() % 256;
+        return sf::Color(r, g, b);
+    }
+
+    // 색을 변경하는 함수 (레버를 눌렀을 때 호출)
+    void update(const sf::Color& slotReelColor) {
+        int targetIndex = rand() % colorSections.size(); // 랜덤 위치 선택
+
+        for (int i = 0; i < colorSections.size(); ++i) {
+            if (i == targetIndex) {
+                // 선택된 위치에 슬롯릴 색상 배치
+                colorSections[i].setFillColor(slotReelColor);
+            }
+            else {
+                // 나머지 공간에는 랜덤 색상 배치
+                colorSections[i].setFillColor(randomColor());
+            }
+        }
+    }
+
     // 화면에 그리기
     void draw(sf::RenderWindow& window) {
         window.draw(shadow1);
         window.draw(shadow2);
         window.draw(body);
         window.draw(innerBox);
+
+        // 색상 공간 그리기
+        for (const auto& section : colorSections) {
+            window.draw(section);
+        }
+
         for (const auto& line : lines) {
             window.draw(line);
         }
+
         window.draw(rectangleShadow);
         window.draw(rectangle);
     }
@@ -315,7 +361,9 @@ public:
                         isMouseOverLever = false;
 
                         if (slotReel.isAnimating) {
-                            slotReel.stopAnimation(); // 슬롯랄 애니메이션 정지
+                            slotReel.stopAnimation(); // 슬롯릴 애니메이션 정지 
+                            sf::Color slotReelColor = slotReel.stopAnimation(); // 애니메이션 정지 및 슬롯릴 색상 반환
+                            slotMachine.update(slotReelColor); // 반환된 색상으로 슬롯머신 업데이트
                         }
 
                         else {
