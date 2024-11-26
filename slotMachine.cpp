@@ -259,6 +259,62 @@ public:
     }
 };
 
+class Arrow {
+public:
+    sf::RectangleShape arrow;  // 화살표 본체
+    sf::ConvexShape triangle;  // 화살표 위에 올릴 세모
+    float speed = 200.0f;      // 화살표 속도
+    float direction = 1.0f;    // 화살표 방향 (1이면 오른쪽, -1이면 왼쪽)
+    sf::Vector2f position;     // 화살표 위치
+
+    Arrow() {
+        // 화살표 디자인 (단순한 사각형 모양)
+        arrow.setSize(sf::Vector2f(20.0f, 25.0f)); // 크기 설정
+        arrow.setFillColor(sf::Color(205, 193, 255));
+        arrow.setOrigin(arrow.getSize().x / 2, arrow.getSize().y / 2); // 중심을 기준으로 회전
+        arrow.setPosition(800, 628); // 초기 위치 설정
+
+        // 세모 디자인 (ConvexShape 사용)
+        triangle.setPointCount(3);  // 세모는 세 개의 점으로 구성됨
+        triangle.setPoint(0, sf::Vector2f(0, -25));  // 위쪽 (크기 키움)
+        triangle.setPoint(1, sf::Vector2f(25, 15));  // 오른쪽 (크기 키움)
+        triangle.setPoint(2, sf::Vector2f(-25, 15)); // 왼쪽 (크기 키움)
+        triangle.setFillColor(sf::Color(205, 193, 255));
+        triangle.setOrigin(0, 10); // 세모의 기준점을 바닥에 맞추기
+        triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2);  // 화살표 위에 배치
+    }
+
+    // 화살표 업데이트 함수
+    void update(float deltaTime) {
+        // 화살표 위치 업데이트
+        position = arrow.getPosition();
+
+        // 왼쪽과 오른쪽으로 반복하며 움직이기
+        if (position.x <= 112 || position.x >= 852) {
+            direction *= -1; // 방향 전환
+        }
+
+        // 화살표를 계속 이동
+        position.x += speed * direction * deltaTime;  // deltaTime을 이용한 속도 조절
+        arrow.setPosition(position);  // 새로운 위치로 갱신
+
+        // 세모도 화살표의 위치에 맞춰 업데이트
+        triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2); // 화살표 위에 세모 위치 갱신
+    }
+
+    // 화살표를 초기 위치로 되돌리는 함수
+    void reset() {
+        arrow.setPosition(800, 628); // 초기 위치
+        triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2); // 세모도 초기 위치로 되돌림
+    }
+
+    // 화면에 화살표와 세모 그리기
+    void draw(sf::RenderWindow& window) {
+        window.draw(arrow);    // 화살표 그리기
+        window.draw(triangle); // 세모 그리기
+    }
+};
+
 // 레버 클래스
 class Lever {
 public:
@@ -329,9 +385,11 @@ SlotReel slotReel;
 class Game {
 private:
     sf::RenderWindow window;
+    sf::Clock clock;
     SlotMachine slotMachine;
     Lever lever;
     Logo logo;
+    Arrow arrow;
 
 public:
     // 창 생성
@@ -373,6 +431,10 @@ public:
                 }
             }
 
+            float deltaTime = clock.restart().asSeconds(); // 매 프레임마다 deltaTime 계산
+            arrow.update(deltaTime);
+            // arrow.reset();
+
             // 업데이트
             lever.update(isMouseOverLever);
             slotReel.update();
@@ -383,6 +445,7 @@ public:
             slotMachine.draw(window);
             slotReel.draw(window);
             lever.draw(window);
+            arrow.draw(window);
             window.display();
         }
     }
