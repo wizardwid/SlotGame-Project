@@ -259,6 +259,7 @@ public:
     }
 };
 
+// 화살표 클래스
 class Arrow {
 public:
     sf::RectangleShape arrow;  // 화살표 본체
@@ -285,12 +286,13 @@ public:
     }
 
     // 화살표 업데이트 함수
-    void update(float deltaTime) {
+    void update(float deltaTime){
+
         // 화살표 위치 업데이트
         position = arrow.getPosition();
 
         // 왼쪽과 오른쪽으로 반복하며 움직이기
-        if (position.x <= 112 || position.x >= 852) {
+        if (position.x <= 115 || position.x >= 845) {
             direction *= -1; // 방향 전환
         }
 
@@ -300,6 +302,10 @@ public:
 
         // 세모도 화살표의 위치에 맞춰 업데이트
         triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2); // 화살표 위에 세모 위치 갱신
+    }
+
+    void stopMoving() {
+        speed = 0;
     }
 
     // 화살표를 초기 위치로 되돌리는 함수
@@ -390,6 +396,8 @@ private:
     Lever lever;
     Logo logo;
     Arrow arrow;
+    bool isFirstPull = true;  // 레버를 처음 당긴 여부 추적
+    bool isArrowStopped = false;
 
 public:
     // 창 생성
@@ -411,29 +419,38 @@ public:
                 if (event.type == sf::Event::MouseMoved) { // 마우스 현재 위치 확인
                     sf::Vector2f mousePos(event.mouseMove.x, event.mouseMove.y); // mousePos : 마우스가 이동할 때의 현재 x, y 좌표
                     isMouseOverLever = lever.handle.getGlobalBounds().contains(mousePos); // contains(mousePos) : mousePos가 leverHandle의 영역 안에 있는지 확인하는 함수
-                }  // true or false
+                }
 
                 // 마우스 버튼을 뗐을 때 복귀 상태로 전환
                 if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) { //  마우스 버튼이 떨어졌을 때 & 왼쪽 마우스 버튼 클릭
                     if (isMouseOverLever) {
                         isMouseOverLever = false;
 
+                        // 슬롯 릴 애니메이션 처리
                         if (slotReel.isAnimating) {
-                            slotReel.stopAnimation(); // 슬롯릴 애니메이션 정지 
                             sf::Color slotReelColor = slotReel.stopAnimation(); // 애니메이션 정지 및 슬롯릴 색상 반환
                             slotMachine.update(slotReelColor); // 반환된 색상으로 슬롯머신 업데이트
                         }
-
                         else {
-                            slotReel.startAnimation(); // 슬롯릴 애니메이션 시작
+                            // 레버를 처음 당길 때
+                            if (isFirstPull) {
+                                isFirstPull = false;
+                                slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
+                                arrow.reset();  // 화살표 초기화
+                            }
+                            slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
+                            arrow.reset();
                         }
                     }
                 }
             }
 
-            float deltaTime = clock.restart().asSeconds(); // 매 프레임마다 deltaTime 계산
-            arrow.update(deltaTime);
-            // arrow.reset();
+            float deltaTime = clock.restart().asSeconds(); // deltaTime 계산
+
+            // 레버를 처음 당긴 후 && 슬롯릴 애니메이션이 움직이지 않을 때
+            if (!isFirstPull && !slotReel.isAnimating) {
+                arrow.update(deltaTime);  // 화살표 업데이트
+            }
 
             // 업데이트
             lever.update(isMouseOverLever);
@@ -449,6 +466,7 @@ public:
             window.display();
         }
     }
+
 };
 
 int main() {
@@ -461,4 +479,4 @@ int main() {
         return -1;
     }
     return 0;
-}
+};
