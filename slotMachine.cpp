@@ -286,7 +286,7 @@ public:
     }
 
     // 화살표 업데이트 함수
-    void update(float deltaTime){
+    void update(float deltaTime) {
 
         // 화살표 위치 업데이트
         position = arrow.getPosition();
@@ -304,7 +304,7 @@ public:
         triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2); // 화살표 위에 세모 위치 갱신
     }
 
-    void stopMoving() {
+    void stop() {
         speed = 0;
     }
 
@@ -397,7 +397,7 @@ private:
     Logo logo;
     Arrow arrow;
     bool isFirstPull = true;  // 레버를 처음 당긴 여부 추적
-    bool isArrowStopped = false;
+    bool isArrowStopped = true; // 화살표 멈춤 여부 추적
 
 public:
     // 창 생성
@@ -430,6 +430,11 @@ public:
                         if (slotReel.isAnimating) {
                             sf::Color slotReelColor = slotReel.stopAnimation(); // 애니메이션 정지 및 슬롯릴 색상 반환
                             slotMachine.update(slotReelColor); // 반환된 색상으로 슬롯머신 업데이트
+                            if (!isArrowStopped) {
+                                arrow.stop();
+                                isArrowStopped = false;
+                            }
+                            arrow.reset();
                         }
                         else {
                             // 레버를 처음 당길 때
@@ -439,7 +444,6 @@ public:
                                 arrow.reset();  // 화살표 초기화
                             }
                             slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
-                            arrow.reset();
                         }
                     }
                 }
@@ -466,7 +470,6 @@ public:
             window.display();
         }
     }
-
 };
 
 int main() {
