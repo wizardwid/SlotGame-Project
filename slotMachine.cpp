@@ -2,6 +2,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <SFML/System.hpp> 
 #include <random>
 #include <cstdlib>  // rand() 함수 사용을 위한 헤더
 #include <ctime>    // srand() 함수 사용을 위한 헤더
@@ -42,6 +43,11 @@ public:
     bool showInnerBoxColor = false;           // innerBox에 랜덤 색상을 표시할지 여부
     float scrollSpeed = 450.f;                // 심볼 스크롤 속도
     int numSymbols = 4;                       // 슬롯에 표시되는 심볼 개수
+
+    // 슬롯 릴에서 현재 색상을 가져오는 함수
+    sf::Color getCurrentColor() const {
+        return innerBox.getFillColor(); // this->는 생략 가능
+    }
 
     SlotReel() {
         // 슬롯 릴 본체
@@ -150,6 +156,9 @@ public:
     sf::RectangleShape rectangleShadow;
     std::vector<sf::RectangleShape> lines;
     std::vector<sf::RectangleShape> colorSections; // 각 공간을 위한 색상 칸들 (5개)
+    int correctSectionIndex;  // 올바른 색상이 위치한 구간의 인덱스  
+    bool gameCleared = false;  // 게임 클리어 여부
+    bool gameOver = false;     // 게임 오버 여부
 
     SlotMachine() {
         // 슬롯머신 본체
@@ -212,6 +221,9 @@ public:
         rectangleShadow.setSize(sf::Vector2f(750, 33));
         rectangleShadow.setFillColor(sf::Color(217, 217, 217));
         rectangleShadow.setPosition(117, 655);
+
+        // 초기 색상 배치
+        correctSectionIndex = -1; // 기본값은 설정되지 않은 상태
     }
 
     // 랜덤 색상 생성 함수
@@ -225,16 +237,57 @@ public:
     // 색을 변경하는 함수 (레버를 눌렀을 때 호출)
     void update(const sf::Color& slotReelColor) {
         int targetIndex = rand() % colorSections.size(); // 랜덤 위치 선택
+        correctSectionIndex = targetIndex; // 정답 구간 인덱스 저장
 
         for (int i = 0; i < colorSections.size(); ++i) {
             if (i == targetIndex) {
                 // 선택된 위치에 슬롯릴 색상 배치
                 colorSections[i].setFillColor(slotReelColor);
+                // 초기 색상 배치와 정답 구간 저장
             }
             else {
                 // 나머지 공간에는 랜덤 색상 배치
                 colorSections[i].setFillColor(randomColor());
             }
+        }
+    }
+
+    // 게임이 클리어 확인 메서드
+    bool isGameCleared() const {
+        return gameCleared;
+    }
+
+    // 게임 오버 확인 메서드
+    bool isGameOver() const {
+        return gameOver;
+    }
+
+    // 게임 오버 상태를 설정하는 메서드
+    void setGameOver(bool over) {
+        gameOver = over;
+    }
+
+    // 화살표가 정답 구간에 도달했는지 확인
+    void checkArrowPosition(float arrowPositionX) {
+        if (correctSectionIndex < 0 || correctSectionIndex >= colorSections.size()) {
+            cout << "Error: correctSectionIndex is invalid!" << endl;
+            return;
+        } // 에러
+
+        // 정답 구간의 시작과 끝 X 좌표
+        float sectionStartX = colorSections[correctSectionIndex].getPosition().x;
+        float sectionEndX = sectionStartX + colorSections[correctSectionIndex].getSize().x;
+
+        // 화살표가 정답 구간에 위치하는지 확인
+        if (arrowPositionX >= sectionStartX && arrowPositionX <= sectionEndX) {
+            cout << "Game Cleared! Colors match!" << endl;
+            gameCleared = true; // 게임 클리어 상태로 설정
+            gameOver = false;   // 게임 오버 상태는 false
+        }
+        else {
+            cout << "Game Over! Try again!" << endl;
+            gameOver = true;    // 게임 오버 상태로 설정
+            gameCleared = false; // 게임 클리어 상태는 false
         }
     }
 
@@ -264,9 +317,14 @@ class Arrow {
 public:
     sf::RectangleShape arrow;  // 화살표 본체
     sf::ConvexShape triangle;  // 화살표 위에 올릴 세모
-    float speed = 200.0f;      // 화살표 속도
+    float speed = 500.0f;      // 화살표 속도
     float direction = 1.0f;    // 화살표 방향 (1이면 오른쪽, -1이면 왼쪽)
     sf::Vector2f position;     // 화살표 위치
+
+    // 화살표의 X 위치 반환
+    float getPositionX() const {
+        return arrow.getPosition().x;
+    }
 
     Arrow() {
         // 화살표 디자인 (단순한 사각형 모양)
@@ -302,10 +360,6 @@ public:
 
         // 세모도 화살표의 위치에 맞춰 업데이트
         triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2); // 화살표 위에 세모 위치 갱신
-    }
-
-    void stop() {
-        speed = 0;
     }
 
     // 화살표를 초기 위치로 되돌리는 함수
@@ -396,21 +450,45 @@ private:
     Lever lever;
     Logo logo;
     Arrow arrow;
-    bool isFirstPull = true;  // 레버를 처음 당긴 여부 추적
-    bool isArrowStopped = true; // 화살표 멈춤 여부 추적
+    int score = 0;
+    sf::RectangleShape modalBackground;
+    sf::Text scoreText;
+    sf::Text modalText;
+    sf::Font font;
 
 public:
     // 창 생성
-    Game() : window(sf::VideoMode(1024, 768), "Slot Machine", sf::Style::Close), logo("logo2.png") {} // 창 최대화 비활성화
+    Game() : window(sf::VideoMode(1024, 768), "Slot Machine", sf::Style::Close), logo("logo2.png") { // 창 최대화 비활성화
+        if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf")) {
+            throw runtime_error("Failed to load font");
+        }
+
+        scoreText.setFont(font);
+        scoreText.setCharacterSize(24);
+        scoreText.setFillColor(sf::Color::Black);
+        scoreText.setPosition(900, 50);
+        scoreText.setString("Score: 0");
+
+        modalBackground.setSize(sf::Vector2f(400, 200));
+        modalBackground.setFillColor(sf::Color(0, 0, 0, 200));
+        modalBackground.setPosition(312, 284);
+
+        modalText.setFont(font);
+        modalText.setCharacterSize(24);
+        modalText.setFillColor(sf::Color::White);
+        modalText.setPosition(362, 334);
+    }
 
     void run() {
-        bool isMouseOverLever = false;
+        bool isMouseOverLever = false; 
+        bool isFirstPull = true; // 처음 레버 당김
+        bool isFirstReelAnimation = true; //처음 슬롯릴 애니메이션 작동
+        bool showModal = false; // 모달 띄우기
 
         // 게임 루프
         while (window.isOpen()) {
             sf::Event event;
             while (window.pollEvent(event)) {
-
                 if (event.type == sf::Event::Closed) {
                     window.close();
                 }
@@ -419,54 +497,86 @@ public:
                 if (event.type == sf::Event::MouseMoved) { // 마우스 현재 위치 확인
                     sf::Vector2f mousePos(event.mouseMove.x, event.mouseMove.y); // mousePos : 마우스가 이동할 때의 현재 x, y 좌표
                     isMouseOverLever = lever.handle.getGlobalBounds().contains(mousePos); // contains(mousePos) : mousePos가 leverHandle의 영역 안에 있는지 확인하는 함수
-                }
+                }  // true or false
 
-                // 마우스 버튼을 뗐을 때 복귀 상태로 전환
+                // 마우스 버튼을 뗐을 때 레버 복귀 상태로 전환
                 if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) { //  마우스 버튼이 떨어졌을 때 & 왼쪽 마우스 버튼 클릭
-                    if (isMouseOverLever) {
+                    if (isMouseOverLever && !slotMachine.isGameOver()) {
                         isMouseOverLever = false;
 
-                        // 슬롯 릴 애니메이션 처리
                         if (slotReel.isAnimating) {
                             sf::Color slotReelColor = slotReel.stopAnimation(); // 애니메이션 정지 및 슬롯릴 색상 반환
                             slotMachine.update(slotReelColor); // 반환된 색상으로 슬롯머신 업데이트
-                            if (!isArrowStopped) {
-                                arrow.stop();
-                                isArrowStopped = false;
-                            }
-                            arrow.reset();
+                            arrow.reset(); // 화살표 초기화
                         }
+
                         else {
                             // 레버를 처음 당길 때
                             if (isFirstPull) {
                                 isFirstPull = false;
-                                slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
-                                arrow.reset();  // 화살표 초기화
+                                arrow.reset(); // 화살표 초기화
                             }
                             slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
+
+                            // 첫 번째 슬롯 릴 애니메이션 이후에만 checkArrowPosition 메서드 수행
+                            if (!isFirstReelAnimation) {
+                                slotMachine.checkArrowPosition(arrow.getPositionX()); // 화살표 위치 정답 구간 확인 메서드
+                                if (slotMachine.isGameCleared()) {
+                                    score += 50; // 게임 클리어 시 점수 추가
+                                    scoreText.setString("Score: " + to_string(score));
+                                }
+                                else if (slotMachine.isGameOver()) {
+                                    showModal = true; // 게임 오버 시 모달 표시
+                                    modalText.setString("Game Over!\nPress R to Retry\nH to Quit");
+                                }
+                            }
+
+                            isFirstReelAnimation = false;  // 첫 번째 애니메이션이 끝났음을 표시
+                        }
+                    }
+                }
+
+                if (showModal) {
+                    if (event.type == sf::Event::KeyPressed) {
+                        slotMachine.setGameOver(false); // 게임 오버 상태를 false로 설정
+                        if (event.key.code == sf::Keyboard::R) {
+                            showModal = false;
+                            arrow.reset();
+                            score = 0;
+                            scoreText.setString("Score: 0");
+                        }
+                        else if (event.key.code == sf::Keyboard::H) {
+                            window.close();
                         }
                     }
                 }
             }
 
-            float deltaTime = clock.restart().asSeconds(); // deltaTime 계산
+            // DeltaTime 계산
+            float deltaTime = clock.restart().asSeconds();
 
             // 레버를 처음 당긴 후 && 슬롯릴 애니메이션이 움직이지 않을 때
             if (!isFirstPull && !slotReel.isAnimating) {
-                arrow.update(deltaTime);  // 화살표 업데이트
+                arrow.update(deltaTime); // 화살표 업데이트
             }
 
-            // 업데이트
+            //업데이트
             lever.update(isMouseOverLever);
             slotReel.update();
 
-            // 화면에 그리기
             window.clear(sf::Color::White);
             logo.draw(window);
             slotMachine.draw(window);
             slotReel.draw(window);
             lever.draw(window);
             arrow.draw(window);
+            window.draw(scoreText);
+
+            if (showModal) {
+                window.draw(modalBackground);
+                window.draw(modalText);
+            }
+
             window.display();
         }
     }
@@ -481,5 +591,10 @@ int main() {
         cerr << "Error: " << e.what() << endl;
         return -1;
     }
+    sf::Clock clock;
+    float deltaTime = clock.restart().asSeconds();
+
+    // Delta Time 출력
+    std::cout << "Delta Time: " << deltaTime << std::endl;
     return 0;
 };
