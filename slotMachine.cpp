@@ -595,6 +595,6 @@ int main() {
     float deltaTime = clock.restart().asSeconds();
 
     // Delta Time Ãâ·Â
-    std::cout << "Delta Time: " << deltaTime << std::endl;
+    cout << "Delta Time: " << deltaTime << endl;
     return 0;
 };
