@@ -46,7 +46,7 @@ public:
 
     // 슬롯 릴에서 현재 색상을 가져오는 함수
     sf::Color getCurrentColor() const {
-        return innerBox.getFillColor(); // this->는 생략 가능
+        return innerBox.getFillColor(); 
     }
 
     SlotReel() {
@@ -226,12 +226,16 @@ public:
         correctSectionIndex = -1; // 기본값은 설정되지 않은 상태
     }
 
-    // 랜덤 색상 생성 함수
-    sf::Color randomColor() {
-        int r = rand() % 256; // 0~255 사이의 랜덤 값
-        int g = rand() % 256;
-        int b = rand() % 256;
-        return sf::Color(r, g, b);
+    // 랜덤 색상 생성 함수 (특정 색상을 제외)
+    sf::Color randomColorExcluding(const sf::Color& excludeColor) {
+        sf::Color randomColor;
+        do {
+            int r = rand() % 256; // 0~255 사이의 랜덤 값
+            int g = rand() % 256;
+            int b = rand() % 256;
+            randomColor = sf::Color(r, g, b);
+        } while (randomColor == excludeColor); // 제외할 색상과 중복 검사
+        return randomColor;
     }
 
     // 색을 변경하는 함수 (레버를 눌렀을 때 호출)
@@ -243,11 +247,10 @@ public:
             if (i == targetIndex) {
                 // 선택된 위치에 슬롯릴 색상 배치
                 colorSections[i].setFillColor(slotReelColor);
-                // 초기 색상 배치와 정답 구간 저장
             }
             else {
-                // 나머지 공간에는 랜덤 색상 배치
-                colorSections[i].setFillColor(randomColor());
+                // 나머지 공간에는 슬롯릴 색상을 제외한 랜덤 색상 배치
+                colorSections[i].setFillColor(randomColorExcluding(slotReelColor));
             }
         }
     }
@@ -543,7 +546,7 @@ public:
                             showModal = false;
                             arrow.reset();
                             score = 0;
-                            scoreText.setString("Score: 0");
+                            scoreText.setString("Score: 0");                           
                         }
                         else if (event.key.code == sf::Keyboard::H) {
                             window.close();
