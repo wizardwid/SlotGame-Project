@@ -1,11 +1,13 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/System.hpp> 
 #include <cmath>
 #include <vector>
 #include <fstream>
 #include <iostream>
-#include <string>
-#include <SFML/System.hpp> 
 #include <random>
+#include <unordered_map>
+#include <string>
 #include <cstdlib>  // rand() 함수 사용을 위한 헤더
 #include <ctime>    // srand() 함수 사용을 위한 헤더
 
@@ -596,6 +598,67 @@ public:
     }
 };
 
+// 사운드 클래스
+class Sound {
+private:
+    // 사운드 버퍼와 사운드 객체를 매핑하는 해시맵
+    unordered_map<string, sf::SoundBuffer> soundBuffers; // 사운드 파일을 메모리에 로드하는 객체
+    unordered_map<string, sf::Sound> sounds; // sf::SoundBuffer로 로드된 사운드를 실제로 재생하는 객체
+    sf::Music backgroundMusic; // 배경 음악용 반복 재생
+
+public:
+    // 사운드 로드 메서드
+    bool loadSound(const string& name, const string& filePath) { // 배경 음악 파일을 로드
+        sf::SoundBuffer buffer;
+        if (!buffer.loadFromFile(filePath)) {
+            cerr << "Failed to load sound: " << filePath << endl;
+            return false;
+        }
+        soundBuffers[name] = buffer; // 로드된 사운드 버퍼를 soundBuffers 해시맵에 name 키로 저장 / buffer : 사운드 파일을 메모리에 로드한 버퍼
+        sounds[name].setBuffer(soundBuffers[name]); //  sf::Sound 객체에 해당 사운드 버퍼를 연결
+        return true;
+    }
+
+    // 배경 음악 로드
+    bool loadBackgroundMusic(const string& filePath) {
+        if (!backgroundMusic.openFromFile(filePath)) {
+            std::cerr << "Failed to load background music: " << filePath << endl;
+            return false;
+        }
+        return true;
+    }
+
+    // 사운드 재생
+    void playSound(const string& name) { // 주어진 이름의 사운드를 재생
+        sounds[name].play();
+    }
+
+    // 배경 음악 재생
+    void playBackgroundMusic(bool loop = true) { // 배경 음악을 재생합
+        backgroundMusic.setLoop(loop);
+        backgroundMusic.play();
+    }
+
+    // 사운드 정지
+    void stopSound(const std::string& name) { // 주어진 이름의 사운드를 정지
+        sounds[name].stop();
+    }
+
+    // 배경 음악 정지
+    void stopBackgroundMusic() {
+        backgroundMusic.stop();
+    }
+
+    // 볼륨 조정
+    void setSoundVolume(const string& name, float volume) {
+         sounds[name].setVolume(volume); // 0~100
+    }
+
+    void setBackgroundMusicVolume(float volume) {
+        backgroundMusic.setVolume(volume); // 0~100
+    }
+};
+
 // 레버 클래스
 class Lever {
 public:
@@ -671,6 +734,7 @@ private:
     Lever lever;
     Logo logo;
     Arrow arrow;
+    Sound sound;
     HighScore highScore;
     Text text;
     Modal modal;
@@ -681,13 +745,28 @@ public:
     // 창 생성
     Game() : window(sf::VideoMode(1024, 768), "Slot Machine", sf::Style::Close),
         logo("logo2.png"), text("C:\\Windows\\Fonts\\arial.ttf"),
-        modal("C:\\Windows\\Fonts\\arial.ttf") {} // 창 최대화 비활성화
+        modal("C:\\Windows\\Fonts\\arial.ttf") { 
+        // 사운드 로드
+        if (!sound.loadSound("reel", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\slot2_reel_spin_1.wav") ||
+            !sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\Tiny Button Push Sound.mp3") ||
+            !sound.loadSound("bonus", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\collect-points-190037.mp3") ||
+            !sound.loadSound("fail", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\fail-234710.mp3") ||
+            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\funny-bgm-240795.mp3"))     
+        {
+            throw runtime_error("Failed to load sound files");
+        }
+
+        // 배경음악 루프 및 볼륨 설정
+        sound.setBackgroundMusicVolume(50);
+        sound.playBackgroundMusic();
+    } // 창 최대화 비활성화
 
     void run() {
         bool isMouseOverLever = false; // 마우스가 레버 위에 있는지 추적
         bool isFirstPull = true; // 처음 레버 당김
         bool isFirstReelAnimation = true; //처음 슬롯릴 애니메이션 작동
         bool showModal = false; // 모달 띄우기
+        bool showIndex = false;         // index 보이기 여부
         float elapsedTime = 0.0f; // 화살표가 움직이기 시작한 후 경과 시간
 
         // 게임 루프
@@ -710,7 +789,9 @@ public:
                 // 마우스 버튼을 뗐을 때 레버 복귀 상태로 전환
                 if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) { //  마우스 버튼이 떨어졌을 때 & 왼쪽 마우스 버튼 클릭
                     if (isMouseOverLever && !slotMachine.isGameOver()) {
+                        sound.playSound("lever"); // 레버 소리 재생
                         if (slotReel.isAnimating) {
+                            sound.stopSound("reel"); // 슬롯릴 소리 멈춤
                             sf::Color slotReelColor = slotReel.stopAnimation(); // 애니메이션 정지 및 슬롯릴 색상 반환
                             slotMachine.update(slotReelColor); // 반환된 색상으로 슬롯머신 업데이트
                             arrow.reset(); // 화살표 초기화
@@ -724,6 +805,7 @@ public:
                             }
                             elapsedTime = 0.0f; // 경과 시간 초기화
                             slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
+                            sound.playSound("reel"); // 슬롯릴 소리 재생
 
                             // 첫 번째 슬롯 릴 애니메이션 이후에만 checkArrowPosition 메서드 수행
                             if (!isFirstReelAnimation) {
@@ -732,6 +814,7 @@ public:
                                     comboCount++; // 클리어 카운트 증가 
                                     // 3의 배수일 때 보너스 점수 추가
                                     if (comboCount % 3 == 0) {
+                                        sound.playSound("bonus"); // 보너스 소리 재생
                                         nScore += 100;         // 콤보 보너스 점수 추가
                                         text.showCombo();      // 콤보 텍스트 표시
                                     }
@@ -744,6 +827,8 @@ public:
                                 }
                                 else if (slotMachine.isGameOver()) {
                                     showModal = true; // 게임 오버 시 모달 표시
+                                    sound.stopSound("reel"); // 슬롯릴 소리 멈춤
+                                    sound.playSound("fail"); // 실패 소리 재생
                                     modal.setModalText("Game Over!\nPress R to Retry\nH to Quit");
                                     modal.setCurrentScore(nScore); // 현점수 
                                     modal.setHighScore(highScore.getHighScore()); // 최고 점수 
@@ -767,9 +852,10 @@ public:
                             slotMachine.resetColorVariance(); // 색상 범위 초기화
                             arrow.resetSpeed(); // 스피드 초기화
                             slotReel.startAnimation(); // 슬롯릴 애니메이션 시작
+                            sound.playSound("reel"); // 슬롯릴 소리 재생
                         }
                         else if (event.key.code == sf::Keyboard::H) {
-                            window.close(); // 'H' 눌렀을 때 창 닫기
+                            window.close();  // 현재 게임 창을 닫음
                         }
                     }
                 }

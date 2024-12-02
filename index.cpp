@@ -1,8 +1,11 @@
 ﻿#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <vector>
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
+#include <unordered_map>
+#include <string>
 
 using namespace std;
 
@@ -162,6 +165,67 @@ public:
     }
 };
 
+// 사운드 클래스
+class Sound {
+private:
+    // 사운드 버퍼와 사운드 객체를 매핑하는 해시맵
+    unordered_map<string, sf::SoundBuffer> soundBuffers; // 사운드 파일을 메모리에 로드하는 객체
+    unordered_map<string, sf::Sound> sounds; // sf::SoundBuffer로 로드된 사운드를 실제로 재생하는 객체
+    sf::Music backgroundMusic; // 배경 음악용 반복 재생
+
+public:
+    // 사운드 로드 메서드
+    bool loadSound(const string& name, const string& filePath) { // 배경 음악 파일을 로드
+        sf::SoundBuffer buffer;
+        if (!buffer.loadFromFile(filePath)) {
+            cerr << "Failed to load sound: " << filePath << endl;
+            return false;
+        }
+        soundBuffers[name] = buffer; // 로드된 사운드 버퍼를 soundBuffers 해시맵에 name 키로 저장 / buffer : 사운드 파일을 메모리에 로드한 버퍼
+        sounds[name].setBuffer(soundBuffers[name]); //  sf::Sound 객체에 해당 사운드 버퍼를 연결
+        return true;
+    }
+
+    // 배경 음악 로드
+    bool loadBackgroundMusic(const string& filePath) {
+        if (!backgroundMusic.openFromFile(filePath)) {
+            std::cerr << "Failed to load background music: " << filePath << endl;
+            return false;
+        }
+        return true;
+    }
+
+    // 사운드 재생
+    void playSound(const string& name) { // 주어진 이름의 사운드를 재생
+        sounds[name].play();
+    }
+
+    // 배경 음악 재생
+    void playBackgroundMusic(bool loop = true) { // 배경 음악을 재생합
+        backgroundMusic.setLoop(loop);
+        backgroundMusic.play();
+    }
+
+    // 사운드 정지
+    void stopSound(const std::string& name) { // 주어진 이름의 사운드를 정지
+        sounds[name].stop();
+    }
+
+    // 배경 음악 정지
+    void stopBackgroundMusic() {
+        backgroundMusic.stop();
+    }
+
+    // 볼륨 조정
+    void setSoundVolume(const string& name, float volume) {
+        sounds[name].setVolume(volume); // 0~100
+    }
+
+    void setBackgroundMusicVolume(float volume) {
+        backgroundMusic.setVolume(volume); // 0~100
+    }
+};
+
 // 레버 클래스
 class Lever {
 public:
@@ -228,13 +292,25 @@ class Game {
 private:
     sf::RenderWindow window;
     SlotMachine slotMachine;
+    Sound sound;
     Lever lever;
     Logo logo;
     sf::Clock clock; // 시간이 경과한 양을 추적
 
 public:
     // 창 생성
-    Game() : window(sf::VideoMode(1024, 768), "Slot Machine", sf::Style::Close), logo("logo.png") {} // 창 최대화 비활성화
+    Game() : window(sf::VideoMode(1024, 768), "Slot Machine", sf::Style::Close), logo("logo.png") {
+        // 사운드 로드
+        if (!sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\Tiny Button Push Sound.mp3") ||
+            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\doki-doki-crafting-club-194811.mp3"))
+        {
+            throw runtime_error("Failed to load sound files");
+        }
+
+        // 배경음악 루프 및 볼륨 설정
+        sound.setBackgroundMusicVolume(50);
+        sound.playBackgroundMusic();
+    } // 창 최대화 비활성화
 
     void run() {
         bool isMouseOverLever = false;
@@ -256,6 +332,7 @@ public:
 
                 // 마우스 버튼을 뗐을 때 복귀 상태로 전환
                 if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) { //  마우스 버튼이 떨어졌을 때 & 왼쪽 마우스 버튼 클릭
+                    sound.playSound("lever"); // 레버 소리 재생
                     isMouseOverLever = false;
                 }
             }
