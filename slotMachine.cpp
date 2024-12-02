@@ -157,7 +157,7 @@ public:
     vector<sf::RectangleShape> lines;
     vector<sf::RectangleShape> colorSections; // 각 공간을 위한 색상 칸들 (5개)
     vector<sf::Color> generatedColors; // 생성된 색상을 추적
-    float colorVariance = 400.0f;  // 색상 범위 변수 (초기 값은 50)
+    float colorVariance = 500.0f;  // 색상 범위 변수
     int correctSectionIndex = -1;  // 올바른 색상이 위치한 구간의 인덱스  
     bool gameCleared = false;  // 게임 클리어 여부
     bool gameOver = false;     // 게임 오버 여부
@@ -225,6 +225,11 @@ public:
         rectangleShadow.setPosition(117, 655);
     }
 
+    // 색상 범위를 초기화하는 setter 함수
+    void setColorVariance(float variance) {
+        colorVariance = variance;
+    }
+
     // 색상 범위 제어
     sf::Color randomColorExcluding(const sf::Color& excludeColor) {
         sf::Color randomColor;
@@ -263,8 +268,8 @@ public:
             }
         }
         // 게임 진행에 따라 색상 범위 축소
-        if (colorVariance > 50.0f) {
-            colorVariance -= 10.0f; // 최소값 50까지 축소
+        if (colorVariance > 100.0f) {
+            colorVariance -= 10.0f; // 최소값 100까지 축소
         }
     }
 
@@ -333,7 +338,7 @@ class Arrow {
 public:
     sf::RectangleShape arrow;  // 화살표 본체
     sf::ConvexShape triangle;  // 화살표 위에 올릴 세모
-    float speed = 500.0f;      // 화살표 속도
+    float speed = 400.0f;      // 화살표 속도
     float direction = 1.0f;    // 화살표 방향 (1이면 오른쪽, -1이면 왼쪽)
     sf::Vector2f position;     // 화살표 위치
 
@@ -380,7 +385,12 @@ public:
 
     // 스피드 증가
     void increaseSpeed() {
-        speed += 50.0f; // 화살표 속도 증가시킴 (클리어마다 속도 증가)
+        speed += 30.0f; // 화살표 속도 증가시킴 (클리어마다 속도 증가)
+    }
+
+    // 스피드 초기화
+    void resetSpeed() {
+        speed = 400.0f;  // 기본 속도로 초기화
     }
 
     // 화살표를 초기 위치로 되돌리는 함수
@@ -389,7 +399,7 @@ public:
         triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2); // 세모도 초기 위치로 되돌림
     }
 
-    // 화면에 화살표와 세모 그리기
+    // 화면에 그리기
     void draw(sf::RenderWindow& window) {
         window.draw(arrow);    // 화살표 그리기
         window.draw(triangle); // 세모 그리기
@@ -401,6 +411,9 @@ public:
     sf::Text scoreText;   // 스코어 텍스트
     sf::Text timerText;  // 제한 시간 텍스트
     sf::Font font;
+    sf::Text comboText; // 콤보 텍스트
+    bool showComboText = false; // 콤보 텍스트 표시 여부
+    sf::Clock comboClock;   // 콤보 텍스트 표시 시간 관리
 
     // 매개변수 생성자 (폰트 경로를 전달받을 수 있도록 함)
     Text(const std::string& fontPath) {
@@ -420,6 +433,14 @@ public:
         timerText.setFillColor(sf::Color::Black);
         timerText.setPosition(900, 80);  // 시간 표시 위치 (점수 밑)
         timerText.setString("Time: 0s");
+
+        // 콤보 텍스트 초기화
+        comboText.setFont(font); // font는 기존 폰트 객체
+        comboText.setString("Combo Bonus!");
+        comboText.setCharacterSize(50);
+        comboText.setFillColor(sf::Color::Yellow);
+        comboText.setStyle(sf::Text::Bold);
+        comboText.setPosition(400, 300); // 화면 중앙에 표시
     }
 
     // 점수 업데이트
@@ -432,10 +453,26 @@ public:
         timerText.setString("Time: " + to_string(static_cast<int>(time)) + "s");
     }
 
-    // 점수 그리기
+    // 콤보 텍스트 표시
+    void showCombo() {
+        showComboText = true;
+        comboClock.restart(); // 표시 시간 초기화
+    }
+
+    // 콤보 텍스트 업데이트 (시간 기반으로 숨김 처리)
+    void updateCombo() {
+        if (showComboText && comboClock.getElapsedTime().asSeconds() > 0.5f) {
+            showComboText = false;
+        }
+    }
+
+    // 화면에 그리기
     void draw(sf::RenderWindow& window) {
         window.draw(scoreText);
         window.draw(timerText);
+        if (showComboText) {
+            window.draw(comboText);
+        }
     }
 };
 
@@ -466,7 +503,7 @@ public:
         modalText.setString(text);
     }
 
-    // 모달 그리기
+    // 화면에 그리기
     void draw(sf::RenderWindow& window) {
         window.draw(modalBackground);
         window.draw(modalText);
@@ -551,6 +588,7 @@ private:
     Text text;
     Modal modal;
     int nScore=0;
+    int comboCount = 0; // 게임 클리어 카운트
 
 public:
     // 창 생성
@@ -582,13 +620,10 @@ public:
                 // 마우스 버튼을 뗐을 때 레버 복귀 상태로 전환
                 if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) { //  마우스 버튼이 떨어졌을 때 & 왼쪽 마우스 버튼 클릭
                     if (isMouseOverLever && !slotMachine.isGameOver()) {
-                        isMouseOverLever = false;
-
                         if (slotReel.isAnimating) {
                             sf::Color slotReelColor = slotReel.stopAnimation(); // 애니메이션 정지 및 슬롯릴 색상 반환
                             slotMachine.update(slotReelColor); // 반환된 색상으로 슬롯머신 업데이트
                             arrow.reset(); // 화살표 초기화
-                            elapsedTime = 0.0f; // 경과 시간 초기화
                         }
 
                         else {
@@ -597,13 +632,21 @@ public:
                                 isFirstPull = false;
                                 arrow.reset(); // 화살표 초기화
                             }
+                            elapsedTime = 0.0f; // 경과 시간 초기화
                             slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
 
                             // 첫 번째 슬롯 릴 애니메이션 이후에만 checkArrowPosition 메서드 수행
                             if (!isFirstReelAnimation) {
                                 slotMachine.checkArrowPosition(arrow.getPositionX()); // 화살표 위치 정답 구간 확인 메서드
                                 if (slotMachine.isGameCleared()) {
-                                    nScore += 50; // 게임 클리어 시 점수 추가
+                                    comboCount++; // 클리어 카운트 증가 
+                                    // 3의 배수일 때 보너스 점수 추가
+                                    if (comboCount % 3 == 0) {
+                                        nScore += 100;         // 콤보 보너스 점수 추가
+                                        text.showCombo();      // 콤보 텍스트 표시
+                                    }
+                                    else nScore += 50; // 게임 클리어 시 점수 추가
+                                    text.updateCombo();
                                     text.updateScore(nScore); // 점수 업데이트
                                     arrow.increaseSpeed();
                                 }
@@ -622,9 +665,14 @@ public:
                         if (event.key.code == sf::Keyboard::R) {
                             slotMachine.setGameOver(false); // 게임 오버 상태를 false로 설정
                             showModal = false;
+                            elapsedTime = 0.0f; // 경과 시간 초기화
+                            text.updateTime(elapsedTime); // 제한 시간 업데이트
                             arrow.reset();
                             nScore = 0;  // 점수 초기화
                             text.updateScore(nScore); // 점수 업데이트
+                            slotMachine.setColorVariance(500.0f); // 색상 범위 초기화
+                            comboCount = 0;
+                            arrow.resetSpeed(); // 스피드 초기화
                             slotReel.startAnimation();
                         }
                         else if (event.key.code == sf::Keyboard::H) {
