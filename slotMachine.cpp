@@ -564,17 +564,17 @@ public:
         modalText.setFillColor(sf::Color::White);
         modalText.setPosition(357, 380);
 
-        // 현점수 텍스트 초기화
+        // 현점수 텍스트
         scoreText.setFont(font);
         scoreText.setCharacterSize(24);
         scoreText.setFillColor(sf::Color::White);
         scoreText.setPosition(357, 353);
 
-        // 최고 점수 텍스트 초기화
+        // 최고 점수 텍스트 
         highScoreText.setFont(font);
         highScoreText.setCharacterSize(24);
         highScoreText.setFillColor(sf::Color::White);
-        highScoreText.setPosition(457, 353);
+        highScoreText.setPosition(470, 353);
     }
 
     // 모달 텍스트 설정
@@ -810,7 +810,7 @@ public:
                             slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
                             sound.playSound("reel"); // 슬롯릴 소리 재생
 
-                            // 첫 번째 슬롯 릴 애니메이션 이후에만 checkArrowPosition 메서드 수행
+                            // 첫 번째 슬롯 릴 업데이트 이후에만 checkArrowPosition 메서드 수행
                             if (!isFirstReelAnimation) {
                                 slotMachine.checkArrowPosition(arrow.getPositionX()); // 화살표 위치 정답 구간 확인 메서드
                                 if (slotMachine.isGameCleared()) {
@@ -875,10 +875,12 @@ public:
                 elapsedTime += deltaTime;
                 text.updateTime(elapsedTime); // 제한 시간 업데이트
 
-                // 3초가 지나면 게임 오버
+                // 4초가 지나면 게임 오버
                 if (elapsedTime >= 4.0f) {
                     slotMachine.setGameOver(true);
-                    modal.setModalText("Game Over!\nPress R to Retry\nH to Quit");
+                    modal.setModalText("Game Over!\nPress R to Retry or H to Quit");
+                    modal.setCurrentScore(nScore); // 현점수 
+                    modal.setHighScore(highScore.getHighScore()); // 최고 점수 
                     showModal = true;
                 }
             }
