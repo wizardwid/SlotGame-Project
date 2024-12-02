@@ -154,9 +154,11 @@ public:
     sf::RectangleShape shadow2;
     sf::RectangleShape rectangle;
     sf::RectangleShape rectangleShadow;
-    std::vector<sf::RectangleShape> lines;
-    std::vector<sf::RectangleShape> colorSections; // 각 공간을 위한 색상 칸들 (5개)
-    int correctSectionIndex;  // 올바른 색상이 위치한 구간의 인덱스  
+    vector<sf::RectangleShape> lines;
+    vector<sf::RectangleShape> colorSections; // 각 공간을 위한 색상 칸들 (5개)
+    vector<sf::Color> generatedColors; // 생성된 색상을 추적
+    float colorVariance = 400.0f;  // 색상 범위 변수 (초기 값은 50)
+    int correctSectionIndex = -1;  // 올바른 색상이 위치한 구간의 인덱스  
     bool gameCleared = false;  // 게임 클리어 여부
     bool gameOver = false;     // 게임 오버 여부
 
@@ -221,20 +223,27 @@ public:
         rectangleShadow.setSize(sf::Vector2f(750, 33));
         rectangleShadow.setFillColor(sf::Color(217, 217, 217));
         rectangleShadow.setPosition(117, 655);
-
-        // 초기 색상 배치
-        correctSectionIndex = -1; // 기본값은 설정되지 않은 상태
     }
 
-    // 랜덤 색상 생성 함수 (특정 색상을 제외)
+    // 색상 범위 제어
     sf::Color randomColorExcluding(const sf::Color& excludeColor) {
         sf::Color randomColor;
-        do {
-            int r = rand() % 256; // 0~255 사이의 랜덤 값
-            int g = rand() % 256;
-            int b = rand() % 256;
+        bool colorExists; // 존재하는 컬러인지 추적
+        do { // 생성된 색상이 excludeColor와 동일한 경우를 피함
+            // 색상 범위를 colorVariance 범위에 맞게 조절하여 랜덤 색상 생성
+            int r = rand() % (int)colorVariance + excludeColor.r - (int)(colorVariance / 2); // excludeColor의 해당 색상 값을 기준으로 생성
+            int g = rand() % (int)colorVariance + excludeColor.g - (int)(colorVariance / 2); // 0부터 colorVariance - 1까지의 값을 반환
+            int b = rand() % (int)colorVariance + excludeColor.b - (int)(colorVariance / 2); // excludeColor rgb를 중심으로 값이 ±(colorVariance / 2) 범위 내에서 생성
+
+            // 색상 범위 보정
+            r = max(0, min(255, r)); // RGB 값이 0에서 255 사이로 제한
+            g = max(0, min(255, g));
+            b = max(0, min(255, b));
+
             randomColor = sf::Color(r, g, b);
-        } while (randomColor == excludeColor); // 제외할 색상과 중복 검사
+            colorExists = find(generatedColors.begin(), generatedColors.end(), randomColor) != generatedColors.end(); // 이미 생성된 색상인지 검사
+            // find 함수 : 찾고자 하는 요소가 컨테이너 안에 존재하는지 여부를 확인 -> 해당 요소를 가리키는 iterator 반환
+        } while (randomColor == excludeColor || colorExists); // 제외할 색상과 중복 검사(randomColor가 excludeColor와 동일한지 확인)
         return randomColor;
     }
 
@@ -252,6 +261,10 @@ public:
                 // 나머지 공간에는 슬롯릴 색상을 제외한 랜덤 색상 배치
                 colorSections[i].setFillColor(randomColorExcluding(slotReelColor));
             }
+        }
+        // 게임 진행에 따라 색상 범위 축소
+        if (colorVariance > 50.0f) {
+            colorVariance -= 10.0f; // 최소값 50까지 축소
         }
     }
 
@@ -363,6 +376,11 @@ public:
 
         // 세모도 화살표의 위치에 맞춰 업데이트
         triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2); // 화살표 위에 세모 위치 갱신
+    }
+
+    // 스피드 증가
+    void increaseSpeed() {
+        speed += 50.0f; // 화살표 속도 증가시킴 (클리어마다 속도 증가)
     }
 
     // 화살표를 초기 위치로 되돌리는 함수
@@ -580,24 +598,25 @@ public:
                                 arrow.reset(); // 화살표 초기화
                             }
                             slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
+
                             // 첫 번째 슬롯 릴 애니메이션 이후에만 checkArrowPosition 메서드 수행
                             if (!isFirstReelAnimation) {
                                 slotMachine.checkArrowPosition(arrow.getPositionX()); // 화살표 위치 정답 구간 확인 메서드
                                 if (slotMachine.isGameCleared()) {
                                     nScore += 50; // 게임 클리어 시 점수 추가
                                     text.updateScore(nScore); // 점수 업데이트
+                                    arrow.increaseSpeed();
                                 }
                                 else if (slotMachine.isGameOver()) {
                                     showModal = true; // 게임 오버 시 모달 표시
                                     modal.setModalText("Game Over!\nPress R to Retry\nH to Quit");
                                 }
                             }
-
                             isFirstReelAnimation = false;  // 첫 번째 애니메이션이 끝났음을 표시
                         }
                     }
                 }
-                // 모달이 표시되는 중일 때 R 키를 눌렀을 때 게임 리셋
+                // 모달 표시
                 if (showModal) {
                     if (event.type == sf::Event::KeyPressed) {
                         if (event.key.code == sf::Keyboard::R) {
