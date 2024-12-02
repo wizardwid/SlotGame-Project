@@ -340,8 +340,8 @@ public:
 // 화살표 클래스
 class Arrow {
 public:
-    sf::RectangleShape arrow;  
-    sf::ConvexShape triangle;  
+    sf::RectangleShape arrow;
+    sf::ConvexShape triangle;
     float speed = 400.0f;      // 화살표 속도
     float direction = 1.0f;    // 화살표 방향 (1이면 오른쪽, -1이면 왼쪽)
     sf::Vector2f position;     // 화살표 위치
@@ -405,8 +405,8 @@ public:
 
     // 화면에 그리기
     void draw(sf::RenderWindow& window) {
-        window.draw(arrow);  
-        window.draw(triangle); 
+        window.draw(arrow);
+        window.draw(triangle);
     }
 };
 
@@ -454,10 +454,10 @@ public:
 // 텍스트 클래스
 class Text {
 public:
-    sf::Text scoreText;   
-    sf::Text timerText;  
-    sf::Text comboText; 
-    sf::Text highScoreText;  
+    sf::Text scoreText;
+    sf::Text timerText;
+    sf::Text comboText;
+    sf::Text highScoreText;
     sf::Font font;
     bool showComboText = false; // 콤보 텍스트 표시 여부
     sf::Clock comboClock;       // 콤보 텍스트 표시 시간 
@@ -468,34 +468,37 @@ public:
             throw runtime_error("Failed to load font");
         }
 
+        // 최고 점수 텍스트 
+        highScoreText.setFont(font);
+        highScoreText.setCharacterSize(24);
+        highScoreText.setFillColor(sf::Color(203, 157, 240));
+        highScoreText.setStyle(sf::Text::Bold);
+        highScoreText.setPosition(800, 30);
+        highScoreText.setString("High Score: 0");
+
         // 점수 텍스트
         scoreText.setFont(font);
         scoreText.setCharacterSize(24);
-        scoreText.setFillColor(sf::Color::Black);
-        scoreText.setPosition(900, 50); 
+        scoreText.setFillColor(sf::Color(149, 189, 255));
+        scoreText.setStyle(sf::Text::Bold);
+        scoreText.setPosition(800, 60);
         scoreText.setString("Score: 0");
 
         // 제한 시간 텍스트 
         timerText.setFont(font);
         timerText.setCharacterSize(24);
-        timerText.setFillColor(sf::Color::Black);
-        timerText.setPosition(900, 80); 
+        timerText.setFillColor(sf::Color(250, 218, 122));
+        timerText.setStyle(sf::Text::Bold);
+        timerText.setPosition(800, 90);
         timerText.setString("Time: 0s");
 
-        // 최고 점수 텍스트 
-        highScoreText.setFont(font);
-        highScoreText.setCharacterSize(24);
-        highScoreText.setFillColor(sf::Color::Black);
-        highScoreText.setPosition(800, 110);  
-        highScoreText.setString("High Score: 0");
-
         // 콤보 텍스트 초기화
-        comboText.setFont(font); 
+        comboText.setFont(font);
         comboText.setString("Combo Bonus!");
-        comboText.setCharacterSize(30);
-        comboText.setFillColor(sf::Color::Yellow);
+        comboText.setCharacterSize(50);
+        comboText.setFillColor(sf::Color(255, 241, 0));
         comboText.setStyle(sf::Text::Bold);
-        comboText.setPosition(400, 350); // 화면 중앙에 표시
+        comboText.setPosition(310, 230);
     }
 
     // 점수 업데이트
@@ -528,9 +531,9 @@ public:
 
     // 화면에 그리기
     void draw(sf::RenderWindow& window) {
+        window.draw(highScoreText);
         window.draw(scoreText);
         window.draw(timerText);
-        window.draw(highScoreText);
         if (showComboText) {
             window.draw(comboText);
         }
@@ -542,8 +545,8 @@ class Modal {
 public:
     sf::RectangleShape modalBackground;
     sf::Text modalText;
-    sf::Text scoreText;  
-    sf::Text highScoreText; 
+    sf::Text scoreText;
+    sf::Text highScoreText;
     sf::Font font;
 
     // 매개변수 생성자 (폰트 경로를 전달받을 수 있도록 함)
@@ -553,25 +556,25 @@ public:
         }
 
         modalBackground.setSize(sf::Vector2f(400, 200)); // 모달의 크기
-        modalBackground.setFillColor(sf::Color(0, 0, 0, 200)); // 배경 색 (반투명)
+        modalBackground.setFillColor(sf::Color(79, 23, 135, 200)); // 배경 색 (반투명)
         modalBackground.setPosition(312, 294); // 모달의 위치
 
         modalText.setFont(font);
         modalText.setCharacterSize(24);
         modalText.setFillColor(sf::Color::White);
-        modalText.setPosition(362, 344); // 텍스트 위치
+        modalText.setPosition(357, 380);
 
         // 현점수 텍스트 초기화
         scoreText.setFont(font);
         scoreText.setCharacterSize(24);
         scoreText.setFillColor(sf::Color::White);
-        scoreText.setPosition(362, 310);
+        scoreText.setPosition(357, 353);
 
         // 최고 점수 텍스트 초기화
         highScoreText.setFont(font);
         highScoreText.setCharacterSize(24);
         highScoreText.setFillColor(sf::Color::White);
-        highScoreText.setPosition(480, 310);
+        highScoreText.setPosition(457, 353);
     }
 
     // 모달 텍스트 설정
@@ -651,7 +654,7 @@ public:
 
     // 볼륨 조정
     void setSoundVolume(const string& name, float volume) {
-         sounds[name].setVolume(volume); // 0~100
+        sounds[name].setVolume(volume); // 0~100
     }
 
     void setBackgroundMusicVolume(float volume) {
@@ -738,20 +741,20 @@ private:
     HighScore highScore;
     Text text;
     Modal modal;
-    int nScore=0; // 점수
+    int nScore = 0; // 점수
     int comboCount = 0; // 게임 클리어 카운트
 
 public:
     // 창 생성
     Game() : window(sf::VideoMode(1024, 768), "Slot Machine", sf::Style::Close),
         logo("logo2.png"), text("C:\\Windows\\Fonts\\arial.ttf"),
-        modal("C:\\Windows\\Fonts\\arial.ttf") { 
+        modal("C:\\Windows\\Fonts\\arial.ttf") {
         // 사운드 로드
         if (!sound.loadSound("reel", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\slot2_reel_spin_1.wav") ||
             !sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\Tiny Button Push Sound.mp3") ||
             !sound.loadSound("bonus", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\collect-points-190037.mp3") ||
             !sound.loadSound("fail", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\fail-234710.mp3") ||
-            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\funny-bgm-240795.mp3"))     
+            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\funny-bgm-240795.mp3"))
         {
             throw runtime_error("Failed to load sound files");
         }
@@ -829,7 +832,7 @@ public:
                                     showModal = true; // 게임 오버 시 모달 표시
                                     sound.stopSound("reel"); // 슬롯릴 소리 멈춤
                                     sound.playSound("fail"); // 실패 소리 재생
-                                    modal.setModalText("Game Over!\nPress R to Retry\nH to Quit");
+                                    modal.setModalText("Game Over!\nPress R to Retry or H to Quit");
                                     modal.setCurrentScore(nScore); // 현점수 
                                     modal.setHighScore(highScore.getHighScore()); // 최고 점수 
                                 }
