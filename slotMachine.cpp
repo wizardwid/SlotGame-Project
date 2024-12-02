@@ -1,7 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <vector>
+#include <fstream>
 #include <iostream>
+#include <string>
 #include <SFML/System.hpp> 
 #include <random>
 #include <cstdlib>  // rand() 함수 사용을 위한 헤더
@@ -16,9 +18,9 @@ private:
     sf::Sprite sprite;
 
 public:
-    Logo(const std::string& imagePath) {
+    Logo(const string& imagePath) {
         if (!texture.loadFromFile(imagePath)) {
-            throw std::runtime_error("Failed to load image: " + imagePath);
+            throw runtime_error("Failed to load image: " + imagePath);
         }
 
         sprite.setTexture(texture);
@@ -37,12 +39,12 @@ public:
     sf::RectangleShape body;
     sf::RectangleShape innerBox;
     sf::RectangleShape shadow;
-    std::vector<sf::RectangleShape> symbols;  // 슬롯 내부의 심볼들
-    sf::Clock animationClock;                 // 애니메이션 타이머
-    bool isAnimating = false;                 // 애니메이션 상태
-    bool showInnerBoxColor = false;           // innerBox에 랜덤 색상을 표시할지 여부
-    float scrollSpeed = 450.f;                // 심볼 스크롤 속도
-    int numSymbols = 4;                       // 슬롯에 표시되는 심볼 개수
+    vector<sf::RectangleShape> symbols;  // 슬롯 내부의 심볼들
+    sf::Clock animationClock;            // 애니메이션 타이머
+    bool isAnimating = false;            // 애니메이션 상태
+    bool showInnerBoxColor = false;      // innerBox에 랜덤 색상을 표시할지 여부
+    float scrollSpeed = 450.f;           // 심볼 스크롤 속도
+    int numSymbols = 4;                  // 슬롯에 표시되는 심볼 개수
 
     // 슬롯 릴에서 현재 색상을 가져오는 함수
     sf::Color getCurrentColor() const {
@@ -80,9 +82,9 @@ public:
 
     // 랜덤 색상 생성 함수
     sf::Color getRandomColor() {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> dis(0, 255);
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_int_distribution<int> dis(0, 255);
 
         return sf::Color(dis(gen), dis(gen), dis(gen)); // 랜덤 RGB 값 생성
     }
@@ -154,13 +156,13 @@ public:
     sf::RectangleShape shadow2;
     sf::RectangleShape rectangle;
     sf::RectangleShape rectangleShadow;
-    vector<sf::RectangleShape> lines;
+    vector<sf::RectangleShape> lines;         // 구간을 나누는 선
     vector<sf::RectangleShape> colorSections; // 각 공간을 위한 색상 칸들 (5개)
-    vector<sf::Color> generatedColors; // 생성된 색상을 추적
-    float colorVariance = 500.0f;  // 색상 범위 변수
-    int correctSectionIndex = -1;  // 올바른 색상이 위치한 구간의 인덱스  
-    bool gameCleared = false;  // 게임 클리어 여부
-    bool gameOver = false;     // 게임 오버 여부
+    vector<sf::Color> generatedColors;        // 생성된 색상을 추적
+    float colorVariance = 500.0f;             // 색상 범위 변수
+    int correctSectionIndex = -1;             // 올바른 색상이 위치한 구간의 인덱스  
+    bool gameCleared = false;                 // 게임 클리어 여부
+    bool gameOver = false;                    // 게임 오버 여부
 
     SlotMachine() {
         // 슬롯머신 본체
@@ -225,9 +227,9 @@ public:
         rectangleShadow.setPosition(117, 655);
     }
 
-    // 색상 범위를 초기화하는 setter 함수
-    void setColorVariance(float variance) {
-        colorVariance = variance;
+    // 색상 범위 초기화
+    void resetColorVariance() {
+        colorVariance = 500.0f;
     }
 
     // 색상 범위 제어
@@ -336,8 +338,8 @@ public:
 // 화살표 클래스
 class Arrow {
 public:
-    sf::RectangleShape arrow;  // 화살표 본체
-    sf::ConvexShape triangle;  // 화살표 위에 올릴 세모
+    sf::RectangleShape arrow;  
+    sf::ConvexShape triangle;  
     float speed = 400.0f;      // 화살표 속도
     float direction = 1.0f;    // 화살표 방향 (1이면 오른쪽, -1이면 왼쪽)
     sf::Vector2f position;     // 화살표 위치
@@ -401,46 +403,97 @@ public:
 
     // 화면에 그리기
     void draw(sf::RenderWindow& window) {
-        window.draw(arrow);    // 화살표 그리기
-        window.draw(triangle); // 세모 그리기
+        window.draw(arrow);  
+        window.draw(triangle); 
     }
 };
 
+// 최고 기록 클래스
+class HighScore {
+public:
+    int highScore;
+
+    HighScore() : highScore(0) {
+        loadHighScore(); // 객체가 생성될 때, 파일에서 최고 점수를 불러옴
+    }
+
+    // 최고 점수 불러오기
+    void loadHighScore() {
+        ifstream file("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\highScore.txt"); // 파일 경로, 읽기 전용 스트림(ifstream) 생성
+        if (file.is_open()) { // 파일 열기
+            file >> highScore; // 파일에서 최고 점수를 읽어서 변수에(highScore) 저장
+            file.close(); // 파일을 닫음
+        }
+    }
+
+    // 최고 점수 저장
+    void saveHighScore() {
+        ofstream file("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\highScore.txt"); // 파일 경로, 쓰기 전용 스트림(ofStream) 생성
+        if (file.is_open()) { // 파일 열기
+            file << highScore; // highScore 값을 파일에 저장
+            file.close(); // 파일 닫음
+        }
+    }
+
+    // 최고 점수 얻기
+    int getHighScore() {
+        return highScore; // 현재 최고 점수를 반환
+    }
+
+    // 최고 점수 갱신
+    void update(int score) {
+        if (score > highScore) { // 새 점수가 기존 최고 점수보다 크면 갱신
+            highScore = score;
+            saveHighScore(); // 새로운 최고점수 저장
+        }
+    }
+};
+
+// 텍스트 클래스
 class Text {
 public:
-    sf::Text scoreText;   // 스코어 텍스트
-    sf::Text timerText;  // 제한 시간 텍스트
+    sf::Text scoreText;   
+    sf::Text timerText;  
+    sf::Text comboText; 
+    sf::Text highScoreText;  
     sf::Font font;
-    sf::Text comboText; // 콤보 텍스트
     bool showComboText = false; // 콤보 텍스트 표시 여부
-    sf::Clock comboClock;   // 콤보 텍스트 표시 시간 관리
+    sf::Clock comboClock;       // 콤보 텍스트 표시 시간 
 
     // 매개변수 생성자 (폰트 경로를 전달받을 수 있도록 함)
-    Text(const std::string& fontPath) {
+    Text(const string& fontPath) {
         if (!font.loadFromFile(fontPath)) {
-            throw std::runtime_error("Failed to load font");
+            throw runtime_error("Failed to load font");
         }
 
+        // 점수 텍스트
         scoreText.setFont(font);
         scoreText.setCharacterSize(24);
         scoreText.setFillColor(sf::Color::Black);
-        scoreText.setPosition(900, 50); // 화면에서 점수의 위치
+        scoreText.setPosition(900, 50); 
         scoreText.setString("Score: 0");
 
-        // 제한 시간 텍스트 설정
+        // 제한 시간 텍스트 
         timerText.setFont(font);
         timerText.setCharacterSize(24);
         timerText.setFillColor(sf::Color::Black);
-        timerText.setPosition(900, 80);  // 시간 표시 위치 (점수 밑)
+        timerText.setPosition(900, 80); 
         timerText.setString("Time: 0s");
 
+        // 최고 점수 텍스트 
+        highScoreText.setFont(font);
+        highScoreText.setCharacterSize(24);
+        highScoreText.setFillColor(sf::Color::Black);
+        highScoreText.setPosition(800, 110);  
+        highScoreText.setString("High Score: 0");
+
         // 콤보 텍스트 초기화
-        comboText.setFont(font); // font는 기존 폰트 객체
+        comboText.setFont(font); 
         comboText.setString("Combo Bonus!");
-        comboText.setCharacterSize(50);
+        comboText.setCharacterSize(30);
         comboText.setFillColor(sf::Color::Yellow);
         comboText.setStyle(sf::Text::Bold);
-        comboText.setPosition(400, 300); // 화면 중앙에 표시
+        comboText.setPosition(400, 350); // 화면 중앙에 표시
     }
 
     // 점수 업데이트
@@ -450,7 +503,12 @@ public:
 
     // 제한 시간 업데이트
     void updateTime(float time) {
-        timerText.setString("Time: " + to_string(static_cast<int>(time)) + "s");
+        timerText.setString("Time: " + to_string(static_cast<int>(time)) + "s"); // static_cast : float를 int로 변환
+    }
+
+    // 최고 점수 설정
+    void updateHScore(int highScore) {
+        highScoreText.setString("High Score: " + to_string(highScore));
     }
 
     // 콤보 텍스트 표시
@@ -461,7 +519,7 @@ public:
 
     // 콤보 텍스트 업데이트 (시간 기반으로 숨김 처리)
     void updateCombo() {
-        if (showComboText && comboClock.getElapsedTime().asSeconds() > 0.5f) {
+        if (showComboText && comboClock.getElapsedTime().asSeconds() > 1.0f) {
             showComboText = false;
         }
     }
@@ -470,43 +528,71 @@ public:
     void draw(sf::RenderWindow& window) {
         window.draw(scoreText);
         window.draw(timerText);
+        window.draw(highScoreText);
         if (showComboText) {
             window.draw(comboText);
         }
     }
 };
 
+// 모달 클래스
 class Modal {
 public:
     sf::RectangleShape modalBackground;
     sf::Text modalText;
+    sf::Text scoreText;  
+    sf::Text highScoreText; 
     sf::Font font;
 
     // 매개변수 생성자 (폰트 경로를 전달받을 수 있도록 함)
-    Modal(const std::string& fontPath) {
+    Modal(const string& fontPath) {
         if (!font.loadFromFile(fontPath)) {  // 괄호 수정
-            throw std::runtime_error("Failed to load font");
+            throw runtime_error("Failed to load font");
         }
 
         modalBackground.setSize(sf::Vector2f(400, 200)); // 모달의 크기
         modalBackground.setFillColor(sf::Color(0, 0, 0, 200)); // 배경 색 (반투명)
-        modalBackground.setPosition(312, 284); // 모달의 위치
+        modalBackground.setPosition(312, 294); // 모달의 위치
 
         modalText.setFont(font);
         modalText.setCharacterSize(24);
         modalText.setFillColor(sf::Color::White);
-        modalText.setPosition(362, 334); // 텍스트 위치
+        modalText.setPosition(362, 344); // 텍스트 위치
+
+        // 현점수 텍스트 초기화
+        scoreText.setFont(font);
+        scoreText.setCharacterSize(24);
+        scoreText.setFillColor(sf::Color::White);
+        scoreText.setPosition(362, 310);
+
+        // 최고 점수 텍스트 초기화
+        highScoreText.setFont(font);
+        highScoreText.setCharacterSize(24);
+        highScoreText.setFillColor(sf::Color::White);
+        highScoreText.setPosition(480, 310);
     }
 
     // 모달 텍스트 설정
-    void setModalText(const std::string& text) {
+    void setModalText(const string& text) {
         modalText.setString(text);
+    }
+
+    // 현재 점수 설정
+    void setCurrentScore(int score) {
+        scoreText.setString("Score: " + to_string(score));
+    }
+
+    // 최고 점수 설정
+    void setHighScore(int highScore) {
+        highScoreText.setString("High Score: " + to_string(highScore));
     }
 
     // 화면에 그리기
     void draw(sf::RenderWindow& window) {
         window.draw(modalBackground);
         window.draw(modalText);
+        window.draw(scoreText);
+        window.draw(highScoreText);
     }
 };
 
@@ -574,7 +660,7 @@ public:
 };
 
 // 전역변수
-SlotReel slotReel;
+SlotReel slotReel; // 여러 곳에서 사용
 
 // 게임 클래스
 class Game {
@@ -585,9 +671,10 @@ private:
     Lever lever;
     Logo logo;
     Arrow arrow;
+    HighScore highScore;
     Text text;
     Modal modal;
-    int nScore=0;
+    int nScore=0; // 점수
     int comboCount = 0; // 게임 클리어 카운트
 
 public:
@@ -597,7 +684,7 @@ public:
         modal("C:\\Windows\\Fonts\\arial.ttf") {} // 창 최대화 비활성화
 
     void run() {
-        bool isMouseOverLever = false;
+        bool isMouseOverLever = false; // 마우스가 레버 위에 있는지 추적
         bool isFirstPull = true; // 처음 레버 당김
         bool isFirstReelAnimation = true; //처음 슬롯릴 애니메이션 작동
         bool showModal = false; // 모달 띄우기
@@ -610,6 +697,9 @@ public:
                 if (event.type == sf::Event::Closed) {
                     window.close();
                 }
+
+                // 첫 시작 최고기록 불러오기
+                text.updateHScore(highScore.getHighScore());
 
                 // 마우스 이동 시 레버 위에 있는지 확인
                 if (event.type == sf::Event::MouseMoved) { // 마우스 현재 위치 확인
@@ -648,11 +738,15 @@ public:
                                     else nScore += 50; // 게임 클리어 시 점수 추가
                                     text.updateCombo();
                                     text.updateScore(nScore); // 점수 업데이트
-                                    arrow.increaseSpeed();
+                                    highScore.update(nScore); // 최고 기록 업데이트
+                                    text.updateHScore(highScore.getHighScore()); // 최고 기록 받아와서 화면에 띄우기
+                                    arrow.increaseSpeed(); // 화살 속도 증가
                                 }
                                 else if (slotMachine.isGameOver()) {
                                     showModal = true; // 게임 오버 시 모달 표시
                                     modal.setModalText("Game Over!\nPress R to Retry\nH to Quit");
+                                    modal.setCurrentScore(nScore); // 현점수 
+                                    modal.setHighScore(highScore.getHighScore()); // 최고 점수 
                                 }
                             }
                             isFirstReelAnimation = false;  // 첫 번째 애니메이션이 끝났음을 표시
@@ -664,16 +758,15 @@ public:
                     if (event.type == sf::Event::KeyPressed) {
                         if (event.key.code == sf::Keyboard::R) {
                             slotMachine.setGameOver(false); // 게임 오버 상태를 false로 설정
-                            showModal = false;
+                            showModal = false; // 모달 제거
                             elapsedTime = 0.0f; // 경과 시간 초기화
                             text.updateTime(elapsedTime); // 제한 시간 업데이트
-                            arrow.reset();
+                            arrow.reset(); // 화살표 위치 초기화
                             nScore = 0;  // 점수 초기화
-                            text.updateScore(nScore); // 점수 업데이트
-                            slotMachine.setColorVariance(500.0f); // 색상 범위 초기화
-                            comboCount = 0;
+                            comboCount = 0; // 콤보 카운트 초기화
+                            slotMachine.resetColorVariance(); // 색상 범위 초기화
                             arrow.resetSpeed(); // 스피드 초기화
-                            slotReel.startAnimation();
+                            slotReel.startAnimation(); // 슬롯릴 애니메이션 시작
                         }
                         else if (event.key.code == sf::Keyboard::H) {
                             window.close(); // 'H' 눌렀을 때 창 닫기
@@ -729,10 +822,5 @@ int main() {
         cerr << "Error: " << e.what() << endl;
         return -1;
     }
-    sf::Clock clock;
-    float deltaTime = clock.restart().asSeconds();
-
-    // Delta Time 출력
-    cout << "Delta Time: " << deltaTime << endl;
     return 0;
 };
