@@ -710,7 +710,7 @@ public:
         timerText.setPosition(800, 90);
         timerText.setString("Time: 0s");
 
-        // 콤보 텍스트 초기화
+        // 콤보 텍스트
         comboText.setFont(font);
         comboText.setString("Combo Bonus!");
         comboText.setCharacterSize(50);
@@ -1071,6 +1071,7 @@ public:
                             arrow.reset(); // 화살표 위치 초기화
                             nScore = 0;  // 점수 초기화
                             comboCount = 0; // 콤보 카운트 초기화
+                            text.showComboText = false; // 콤보 텍스트 안뜨게
                             slotMachine.resetColorVariance(); // 색상 범위 초기화
                             arrow.resetSpeed(); // 스피드 초기화
                             slotReel.startAnimation(); // 슬롯릴 애니메이션 시작
