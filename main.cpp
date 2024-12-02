@@ -277,23 +277,23 @@ public:
         body.setFillColor(sf::Color(240, 193, 225));
         body.setOutlineColor(sf::Color(203, 157, 240));
         body.setOutlineThickness(5);
-        body.setPosition(231, 185);
+        body.setPosition(232, 185);
 
         // 내부 박스 (초기 상태로 계속 보이도록 설정)
         innerBox.setSize(sf::Vector2f(480, 140));
         innerBox.setFillColor(sf::Color(249, 245, 246));
         innerBox.setOutlineColor(sf::Color(203, 157, 240));
         innerBox.setOutlineThickness(3);
-        innerBox.setPosition(241, 195);
+        innerBox.setPosition(242, 195);
 
         // 본체 그림자
         shadow.setSize(sf::Vector2f(520, 175));
         shadow.setFillColor(sf::Color(217, 217, 217));
-        shadow.setPosition(226, 170);
+        shadow.setPosition(227, 170);
 
         for (int i = 0; i < numSymbols; ++i) {
             sf::RectangleShape symbol(sf::Vector2f(480, 40)); // 심볼 크기 설정
-            symbol.setPosition(240, 180 + i * 40);            // 심볼 위치 설정
+            symbol.setPosition(241, 180 + i * 40);            // 심볼 위치 설정
             symbol.setFillColor(sf::Color(249, 245, 246));
             symbols.push_back(symbol);
         }
@@ -324,7 +324,7 @@ public:
 
                 // 화면 밖으로 나가면 다시 아래로 보내기
                 if (symbol.getPosition().y + symbol.getSize().y < 236) {
-                    symbol.setPosition(241, 180 + (numSymbols - 1) * 40); // 다시 아래로 설정
+                    symbol.setPosition(242, 180 + (numSymbols - 1) * 40); // 다시 아래로 설정
                     symbol.setFillColor(getRandomColor());               // 심볼 색상도 랜덤으로 변경
                 }
             }
@@ -390,24 +390,24 @@ public:
         body.setFillColor(sf::Color(191, 236, 255));
         body.setOutlineColor(sf::Color(205, 193, 255));
         body.setOutlineThickness(5);
-        body.setPosition(81, 350);
+        body.setPosition(82, 350);
 
         // 내부 박스
         innerBox.setSize(sf::Vector2f(780, 280));
         innerBox.setFillColor(sf::Color(255, 251, 243));
         innerBox.setOutlineColor(sf::Color(205, 193, 255));
         innerBox.setOutlineThickness(3);
-        innerBox.setPosition(91, 360);
+        innerBox.setPosition(92, 360);
 
         // 본체 그림자 1
         shadow1.setSize(sf::Vector2f(820, 320));
         shadow1.setFillColor(sf::Color(217, 217, 217));
-        shadow1.setPosition(76, 335);
+        shadow1.setPosition(77, 335);
 
         // 본체 그림자 2
         shadow2.setSize(sf::Vector2f(330, 30));
         shadow2.setFillColor(sf::Color(217, 217, 217));
-        shadow2.setPosition(566, 635);
+        shadow2.setPosition(567, 635);
 
         // 선 생성
         const int lineCount = 4;
@@ -439,12 +439,12 @@ public:
         rectangle.setFillColor(sf::Color(227, 246, 255));
         rectangle.setOutlineColor(sf::Color(205, 193, 255));
         rectangle.setOutlineThickness(3);
-        rectangle.setPosition(105, 655);
+        rectangle.setPosition(106, 655);
 
         // 직사각형 그림자
         rectangleShadow.setSize(sf::Vector2f(750, 33));
         rectangleShadow.setFillColor(sf::Color(217, 217, 217));
-        rectangleShadow.setPosition(118, 655);
+        rectangleShadow.setPosition(119, 655);
     }
 
     // 색상 범위 초기화
@@ -574,7 +574,7 @@ public:
         arrow.setSize(sf::Vector2f(20.0f, 25.0f)); // 크기 설정
         arrow.setFillColor(sf::Color(205, 193, 255));
         arrow.setOrigin(arrow.getSize().x / 2, arrow.getSize().y / 2); // 중심을 기준으로 회전
-        arrow.setPosition(801, 628); // 초기 위치 설정
+        arrow.setPosition(802, 628); // 초기 위치 설정
 
         // 세모 디자인 (ConvexShape 사용)
         triangle.setPointCount(3);  // 세모는 세 개의 점으로 구성됨
@@ -593,7 +593,7 @@ public:
         position = arrow.getPosition();
 
         // 왼쪽과 오른쪽으로 반복하며 움직이기
-        if (position.x <= 116 || position.x >= 846) {
+        if (position.x <= 117 || position.x >= 847) {
             direction *= -1; // 방향 전환
         }
 
@@ -617,7 +617,7 @@ public:
 
     // 화살표를 초기 위치로 되돌리는 함수
     void reset() {
-        arrow.setPosition(800, 628); // 초기 위치
+        arrow.setPosition(802, 628); // 초기 위치
         triangle.setPosition(arrow.getPosition().x, arrow.getPosition().y - arrow.getSize().y / 2); // 세모도 초기 위치로 되돌림
     }
 
@@ -691,7 +691,7 @@ public:
         highScoreText.setCharacterSize(24);
         highScoreText.setFillColor(sf::Color(203, 157, 240));
         highScoreText.setStyle(sf::Text::Bold);
-        highScoreText.setPosition(801, 35);
+        highScoreText.setPosition(802, 35);
         highScoreText.setString("High Score: 0");
 
         // 점수 텍스트
@@ -699,7 +699,7 @@ public:
         scoreText.setCharacterSize(24);
         scoreText.setFillColor(sf::Color(149, 189, 255));
         scoreText.setStyle(sf::Text::Bold);
-        scoreText.setPosition(801, 65);
+        scoreText.setPosition(802, 65);
         scoreText.setString("Score: 0");
 
         // 제한 시간 텍스트 
@@ -707,7 +707,7 @@ public:
         timerText.setCharacterSize(24);
         timerText.setFillColor(sf::Color(250, 218, 122));
         timerText.setStyle(sf::Text::Bold);
-        timerText.setPosition(801, 95);
+        timerText.setPosition(802, 95);
         timerText.setString("Time: 0s");
 
         // 콤보 텍스트
@@ -716,7 +716,7 @@ public:
         comboText.setCharacterSize(50);
         comboText.setFillColor(sf::Color(255, 241, 0));
         comboText.setStyle(sf::Text::Bold);
-        comboText.setPosition(311, 230);
+        comboText.setPosition(312, 230);
     }
 
     // 점수 업데이트
@@ -894,7 +894,7 @@ public:
         leverBody.setSize(sf::Vector2f(20, 260));
         leverBody.setFillColor(sf::Color(240, 193, 225));
         leverBody.setOrigin(7.5f, 100);
-        leverBody.setPosition(931, 455);
+        leverBody.setPosition(932, 455);
 
         // 레버 손잡이
         handle.setRadius(23);
@@ -905,7 +905,7 @@ public:
         // 레버 연결 도형
         connection.setSize(sf::Vector2f(connectionWidth, 20));
         connection.setFillColor(sf::Color(240, 193, 225));
-        connection.setPosition(881, 595);
+        connection.setPosition(882, 595);
     }
 
     // 레버 애니메이션
