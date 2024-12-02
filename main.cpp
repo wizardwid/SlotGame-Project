@@ -181,10 +181,10 @@ public:
 
 public:
     fLever() {
-        leverBody.setSize(sf::Vector2f(20, 180));
+        leverBody.setSize(sf::Vector2f(20, 195));
         leverBody.setFillColor(sf::Color(240, 193, 225));
         leverBody.setOrigin(7.5f, 100);
-        leverBody.setPosition(703, 388);
+        leverBody.setPosition(703, 373);
 
         handle.setRadius(18);
         handle.setFillColor(sf::Color(203, 157, 240));
@@ -193,7 +193,7 @@ public:
 
         connection.setSize(sf::Vector2f(50, 20));
         connection.setFillColor(sf::Color(240, 193, 225));
-        connection.setPosition(665, 449);
+        connection.setPosition(665, 448);
     }
 
     // 레버 애니메이션
@@ -244,7 +244,7 @@ public:
         }
 
         sprite.setTexture(texture);
-        sprite.setPosition(-450, -460);
+        sprite.setPosition(-480, -455);
     }
 
     // 화면에 그리기
@@ -691,7 +691,7 @@ public:
         highScoreText.setCharacterSize(24);
         highScoreText.setFillColor(sf::Color(203, 157, 240));
         highScoreText.setStyle(sf::Text::Bold);
-        highScoreText.setPosition(801, 30);
+        highScoreText.setPosition(801, 35);
         highScoreText.setString("High Score: 0");
 
         // 점수 텍스트
@@ -699,7 +699,7 @@ public:
         scoreText.setCharacterSize(24);
         scoreText.setFillColor(sf::Color(149, 189, 255));
         scoreText.setStyle(sf::Text::Bold);
-        scoreText.setPosition(801, 60);
+        scoreText.setPosition(801, 65);
         scoreText.setString("Score: 0");
 
         // 제한 시간 텍스트 
@@ -707,7 +707,7 @@ public:
         timerText.setCharacterSize(24);
         timerText.setFillColor(sf::Color(250, 218, 122));
         timerText.setStyle(sf::Text::Bold);
-        timerText.setPosition(801, 90);
+        timerText.setPosition(801, 95);
         timerText.setString("Time: 0s");
 
         // 콤보 텍스트
