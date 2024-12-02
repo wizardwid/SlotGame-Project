@@ -277,19 +277,19 @@ public:
         body.setFillColor(sf::Color(240, 193, 225));
         body.setOutlineColor(sf::Color(203, 157, 240));
         body.setOutlineThickness(5);
-        body.setPosition(230, 185);
+        body.setPosition(231, 185);
 
         // 내부 박스 (초기 상태로 계속 보이도록 설정)
         innerBox.setSize(sf::Vector2f(480, 140));
         innerBox.setFillColor(sf::Color(249, 245, 246));
         innerBox.setOutlineColor(sf::Color(203, 157, 240));
         innerBox.setOutlineThickness(3);
-        innerBox.setPosition(240, 195);
+        innerBox.setPosition(241, 195);
 
         // 본체 그림자
         shadow.setSize(sf::Vector2f(520, 175));
         shadow.setFillColor(sf::Color(217, 217, 217));
-        shadow.setPosition(225, 170);
+        shadow.setPosition(226, 170);
 
         for (int i = 0; i < numSymbols; ++i) {
             sf::RectangleShape symbol(sf::Vector2f(480, 40)); // 심볼 크기 설정
@@ -324,7 +324,7 @@ public:
 
                 // 화면 밖으로 나가면 다시 아래로 보내기
                 if (symbol.getPosition().y + symbol.getSize().y < 236) {
-                    symbol.setPosition(240, 180 + (numSymbols - 1) * 40); // 다시 아래로 설정
+                    symbol.setPosition(241, 180 + (numSymbols - 1) * 40); // 다시 아래로 설정
                     symbol.setFillColor(getRandomColor());               // 심볼 색상도 랜덤으로 변경
                 }
             }
@@ -390,24 +390,24 @@ public:
         body.setFillColor(sf::Color(191, 236, 255));
         body.setOutlineColor(sf::Color(205, 193, 255));
         body.setOutlineThickness(5);
-        body.setPosition(80, 350);
+        body.setPosition(81, 350);
 
         // 내부 박스
         innerBox.setSize(sf::Vector2f(780, 280));
         innerBox.setFillColor(sf::Color(255, 251, 243));
         innerBox.setOutlineColor(sf::Color(205, 193, 255));
         innerBox.setOutlineThickness(3);
-        innerBox.setPosition(90, 360);
+        innerBox.setPosition(91, 360);
 
         // 본체 그림자 1
         shadow1.setSize(sf::Vector2f(820, 320));
         shadow1.setFillColor(sf::Color(217, 217, 217));
-        shadow1.setPosition(75, 335);
+        shadow1.setPosition(76, 335);
 
         // 본체 그림자 2
         shadow2.setSize(sf::Vector2f(330, 30));
         shadow2.setFillColor(sf::Color(217, 217, 217));
-        shadow2.setPosition(565, 635);
+        shadow2.setPosition(566, 635);
 
         // 선 생성
         const int lineCount = 4;
@@ -439,12 +439,12 @@ public:
         rectangle.setFillColor(sf::Color(227, 246, 255));
         rectangle.setOutlineColor(sf::Color(205, 193, 255));
         rectangle.setOutlineThickness(3);
-        rectangle.setPosition(104, 655);
+        rectangle.setPosition(105, 655);
 
         // 직사각형 그림자
         rectangleShadow.setSize(sf::Vector2f(750, 33));
         rectangleShadow.setFillColor(sf::Color(217, 217, 217));
-        rectangleShadow.setPosition(117, 655);
+        rectangleShadow.setPosition(118, 655);
     }
 
     // 색상 범위 초기화
@@ -574,7 +574,7 @@ public:
         arrow.setSize(sf::Vector2f(20.0f, 25.0f)); // 크기 설정
         arrow.setFillColor(sf::Color(205, 193, 255));
         arrow.setOrigin(arrow.getSize().x / 2, arrow.getSize().y / 2); // 중심을 기준으로 회전
-        arrow.setPosition(800, 628); // 초기 위치 설정
+        arrow.setPosition(801, 628); // 초기 위치 설정
 
         // 세모 디자인 (ConvexShape 사용)
         triangle.setPointCount(3);  // 세모는 세 개의 점으로 구성됨
@@ -593,7 +593,7 @@ public:
         position = arrow.getPosition();
 
         // 왼쪽과 오른쪽으로 반복하며 움직이기
-        if (position.x <= 115 || position.x >= 845) {
+        if (position.x <= 116 || position.x >= 846) {
             direction *= -1; // 방향 전환
         }
 
@@ -691,7 +691,7 @@ public:
         highScoreText.setCharacterSize(24);
         highScoreText.setFillColor(sf::Color(203, 157, 240));
         highScoreText.setStyle(sf::Text::Bold);
-        highScoreText.setPosition(800, 30);
+        highScoreText.setPosition(801, 30);
         highScoreText.setString("High Score: 0");
 
         // 점수 텍스트
@@ -699,7 +699,7 @@ public:
         scoreText.setCharacterSize(24);
         scoreText.setFillColor(sf::Color(149, 189, 255));
         scoreText.setStyle(sf::Text::Bold);
-        scoreText.setPosition(800, 60);
+        scoreText.setPosition(801, 60);
         scoreText.setString("Score: 0");
 
         // 제한 시간 텍스트 
@@ -707,7 +707,7 @@ public:
         timerText.setCharacterSize(24);
         timerText.setFillColor(sf::Color(250, 218, 122));
         timerText.setStyle(sf::Text::Bold);
-        timerText.setPosition(800, 90);
+        timerText.setPosition(801, 90);
         timerText.setString("Time: 0s");
 
         // 콤보 텍스트
@@ -716,7 +716,7 @@ public:
         comboText.setCharacterSize(50);
         comboText.setFillColor(sf::Color(255, 241, 0));
         comboText.setStyle(sf::Text::Bold);
-        comboText.setPosition(310, 230);
+        comboText.setPosition(311, 230);
     }
 
     // 점수 업데이트
@@ -775,24 +775,24 @@ public:
 
         modalBackground.setSize(sf::Vector2f(400, 200)); // 모달의 크기
         modalBackground.setFillColor(sf::Color(79, 23, 135, 200)); // 배경 색 (반투명)
-        modalBackground.setPosition(312, 294); // 모달의 위치
+        modalBackground.setPosition(313, 294); // 모달의 위치
 
         modalText.setFont(font);
         modalText.setCharacterSize(24);
         modalText.setFillColor(sf::Color::White);
-        modalText.setPosition(357, 393);
+        modalText.setPosition(358, 393);
 
         // 현점수 텍스트
         scoreText.setFont(font);
         scoreText.setCharacterSize(24);
         scoreText.setFillColor(sf::Color::White);
-        scoreText.setPosition(357, 333);
+        scoreText.setPosition(358, 333);
 
         // 최고 점수 텍스트 
         highScoreText.setFont(font);
         highScoreText.setCharacterSize(24);
         highScoreText.setFillColor(sf::Color::White);
-        highScoreText.setPosition(357, 363);
+        highScoreText.setPosition(358, 363);
     }
 
     // 모달 텍스트 설정
@@ -894,7 +894,7 @@ public:
         leverBody.setSize(sf::Vector2f(20, 260));
         leverBody.setFillColor(sf::Color(240, 193, 225));
         leverBody.setOrigin(7.5f, 100);
-        leverBody.setPosition(930, 455);
+        leverBody.setPosition(931, 455);
 
         // 레버 손잡이
         handle.setRadius(23);
@@ -905,7 +905,7 @@ public:
         // 레버 연결 도형
         connection.setSize(sf::Vector2f(connectionWidth, 20));
         connection.setFillColor(sf::Color(240, 193, 225));
-        connection.setPosition(880, 595);
+        connection.setPosition(881, 595);
     }
 
     // 레버 애니메이션
@@ -969,11 +969,11 @@ public:
         logo("logo2.png"), text("C:\\Windows\\Fonts\\arial.ttf"),
         modal("C:\\Windows\\Fonts\\arial.ttf") {
         // 사운드 로드
-        if (!sound.loadSound("reel", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\slot2_reel_spin_1.wav") ||
-            !sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\Tiny Button Push Sound.mp3") ||
-            !sound.loadSound("bonus", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\collect-points-190037.mp3") ||
-            !sound.loadSound("fail", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\fail-234710.mp3") ||
-            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\funny-bgm-240795.mp3"))
+        if (!sound.loadSound("reel", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\slot2_reel_spin_1.wav") ||
+            !sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\Tiny Button Push Sound.mp3") ||
+            !sound.loadSound("bonus", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\collect-points-190037.mp3") ||
+            !sound.loadSound("fail", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\fail-234710.mp3") ||
+            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\funny-bgm-240795.mp3"))
         {
             throw runtime_error("Failed to load sound files");
         }
@@ -1051,7 +1051,7 @@ public:
                                     showModal = true; // 게임 오버 시 모달 표시
                                     sound.stopSound("reel"); // 슬롯릴 소리 멈춤
                                     sound.playSound("fail"); // 실패 소리 재생
-                                    modal.setModalText("Game Over!\nPress R to Retry or H to Quit");
+                                    modal.setModalText("Game Over!\nPress R to Retry");
                                     modal.setCurrentScore(nScore); // 현점수 
                                     modal.setHighScore(highScore.getHighScore()); // 최고 점수 
                                 }
@@ -1077,7 +1077,7 @@ public:
                             slotReel.startAnimation(); // 슬롯릴 애니메이션 시작
                             sound.playSound("reel"); // 슬롯릴 소리 재생
                         }
-                        else if (event.key.code == sf::Keyboard::H) {
+                        else{
                             window.close();  // 현재 게임 창을 닫음
                         }
                     }
@@ -1098,7 +1098,7 @@ public:
                 // 3초가 지나면 게임 오버
                 if (elapsedTime >= 4.0f) {
                     slotMachine.setGameOver(true);
-                    modal.setModalText("Game Over!\nPress R to Retry\nH to Quit");
+                    modal.setModalText("Game Over!\nPress R to Retry");
                     showModal = true;
                 }
             }
@@ -1136,8 +1136,8 @@ public:
     // 창 생성
     Game1() : window(sf::VideoMode(1024, 768), "Index", sf::Style::Close), flogo("logo.png") { // 창 최대화 비활성화
         // 사운드 로드
-        if (!sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\Tiny Button Push Sound.mp3") ||
-            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Downloads\\doki-doki-crafting-club-194811.mp3"))
+        if (!sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\Tiny Button Push Sound.mp3") ||
+            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\doki-doki-crafting-club-194811.mp3"))
         {
             throw runtime_error("Failed to load sound files");
         }
