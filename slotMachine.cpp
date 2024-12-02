@@ -46,7 +46,7 @@ public:
 
     // 슬롯 릴에서 현재 색상을 가져오는 함수
     sf::Color getCurrentColor() const {
-        return innerBox.getFillColor(); 
+        return innerBox.getFillColor();
     }
 
     SlotReel() {
@@ -378,6 +378,83 @@ public:
     }
 };
 
+class Text {
+public:
+    sf::Text scoreText;   // 스코어 텍스트
+    sf::Text timerText;  // 제한 시간 텍스트
+    sf::Font font;
+
+    // 매개변수 생성자 (폰트 경로를 전달받을 수 있도록 함)
+    Text(const std::string& fontPath) {
+        if (!font.loadFromFile(fontPath)) {
+            throw std::runtime_error("Failed to load font");
+        }
+
+        scoreText.setFont(font);
+        scoreText.setCharacterSize(24);
+        scoreText.setFillColor(sf::Color::Black);
+        scoreText.setPosition(900, 50); // 화면에서 점수의 위치
+        scoreText.setString("Score: 0");
+
+        // 제한 시간 텍스트 설정
+        timerText.setFont(font);
+        timerText.setCharacterSize(24);
+        timerText.setFillColor(sf::Color::Black);
+        timerText.setPosition(900, 80);  // 시간 표시 위치 (점수 밑)
+        timerText.setString("Time: 0s");
+    }
+
+    // 점수 업데이트
+    void updateScore(int score) {
+        scoreText.setString("Score: " + to_string(score));
+    }
+
+    // 제한 시간 업데이트
+    void updateTime(float time) {
+        timerText.setString("Time: " + to_string(static_cast<int>(time)) + "s");
+    }
+
+    // 점수 그리기
+    void draw(sf::RenderWindow& window) {
+        window.draw(scoreText);
+        window.draw(timerText);
+    }
+};
+
+class Modal {
+public:
+    sf::RectangleShape modalBackground;
+    sf::Text modalText;
+    sf::Font font;
+
+    // 매개변수 생성자 (폰트 경로를 전달받을 수 있도록 함)
+    Modal(const std::string& fontPath) {
+        if (!font.loadFromFile(fontPath)) {  // 괄호 수정
+            throw std::runtime_error("Failed to load font");
+        }
+
+        modalBackground.setSize(sf::Vector2f(400, 200)); // 모달의 크기
+        modalBackground.setFillColor(sf::Color(0, 0, 0, 200)); // 배경 색 (반투명)
+        modalBackground.setPosition(312, 284); // 모달의 위치
+
+        modalText.setFont(font);
+        modalText.setCharacterSize(24);
+        modalText.setFillColor(sf::Color::White);
+        modalText.setPosition(362, 334); // 텍스트 위치
+    }
+
+    // 모달 텍스트 설정
+    void setModalText(const std::string& text) {
+        modalText.setString(text);
+    }
+
+    // 모달 그리기
+    void draw(sf::RenderWindow& window) {
+        window.draw(modalBackground);
+        window.draw(modalText);
+    }
+};
+
 // 레버 클래스
 class Lever {
 public:
@@ -453,40 +530,22 @@ private:
     Lever lever;
     Logo logo;
     Arrow arrow;
-    int score = 0;
-    sf::RectangleShape modalBackground;
-    sf::Text scoreText;
-    sf::Text modalText;
-    sf::Font font;
+    Text text;
+    Modal modal;
+    int nScore=0;
 
 public:
     // 창 생성
-    Game() : window(sf::VideoMode(1024, 768), "Slot Machine", sf::Style::Close), logo("logo2.png") { // 창 최대화 비활성화
-        if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf")) {
-            throw runtime_error("Failed to load font");
-        }
-
-        scoreText.setFont(font);
-        scoreText.setCharacterSize(24);
-        scoreText.setFillColor(sf::Color::Black);
-        scoreText.setPosition(900, 50);
-        scoreText.setString("Score: 0");
-
-        modalBackground.setSize(sf::Vector2f(400, 200));
-        modalBackground.setFillColor(sf::Color(0, 0, 0, 200));
-        modalBackground.setPosition(312, 284);
-
-        modalText.setFont(font);
-        modalText.setCharacterSize(24);
-        modalText.setFillColor(sf::Color::White);
-        modalText.setPosition(362, 334);
-    }
+    Game() : window(sf::VideoMode(1024, 768), "Slot Machine", sf::Style::Close),
+        logo("logo2.png"), text("C:\\Windows\\Fonts\\arial.ttf"),
+        modal("C:\\Windows\\Fonts\\arial.ttf") {} // 창 최대화 비활성화
 
     void run() {
-        bool isMouseOverLever = false; 
+        bool isMouseOverLever = false;
         bool isFirstPull = true; // 처음 레버 당김
         bool isFirstReelAnimation = true; //처음 슬롯릴 애니메이션 작동
         bool showModal = false; // 모달 띄우기
+        float elapsedTime = 0.0f; // 화살표가 움직이기 시작한 후 경과 시간
 
         // 게임 루프
         while (window.isOpen()) {
@@ -511,6 +570,7 @@ public:
                             sf::Color slotReelColor = slotReel.stopAnimation(); // 애니메이션 정지 및 슬롯릴 색상 반환
                             slotMachine.update(slotReelColor); // 반환된 색상으로 슬롯머신 업데이트
                             arrow.reset(); // 화살표 초기화
+                            elapsedTime = 0.0f; // 경과 시간 초기화
                         }
 
                         else {
@@ -520,17 +580,16 @@ public:
                                 arrow.reset(); // 화살표 초기화
                             }
                             slotReel.startAnimation();  // 슬롯 릴 애니메이션 시작
-
                             // 첫 번째 슬롯 릴 애니메이션 이후에만 checkArrowPosition 메서드 수행
                             if (!isFirstReelAnimation) {
                                 slotMachine.checkArrowPosition(arrow.getPositionX()); // 화살표 위치 정답 구간 확인 메서드
                                 if (slotMachine.isGameCleared()) {
-                                    score += 50; // 게임 클리어 시 점수 추가
-                                    scoreText.setString("Score: " + to_string(score));
+                                    nScore += 50; // 게임 클리어 시 점수 추가
+                                    text.updateScore(nScore); // 점수 업데이트
                                 }
                                 else if (slotMachine.isGameOver()) {
                                     showModal = true; // 게임 오버 시 모달 표시
-                                    modalText.setString("Game Over!\nPress R to Retry\nH to Quit");
+                                    modal.setModalText("Game Over!\nPress R to Retry\nH to Quit");
                                 }
                             }
 
@@ -538,18 +597,19 @@ public:
                         }
                     }
                 }
-
+                // 모달이 표시되는 중일 때 R 키를 눌렀을 때 게임 리셋
                 if (showModal) {
                     if (event.type == sf::Event::KeyPressed) {
-                        slotMachine.setGameOver(false); // 게임 오버 상태를 false로 설정
                         if (event.key.code == sf::Keyboard::R) {
+                            slotMachine.setGameOver(false); // 게임 오버 상태를 false로 설정
                             showModal = false;
                             arrow.reset();
-                            score = 0;
-                            scoreText.setString("Score: 0");                           
+                            nScore = 0;  // 점수 초기화
+                            text.updateScore(nScore); // 점수 업데이트
+                            slotReel.startAnimation();
                         }
                         else if (event.key.code == sf::Keyboard::H) {
-                            window.close();
+                            window.close(); // 'H' 눌렀을 때 창 닫기
                         }
                     }
                 }
@@ -558,9 +618,20 @@ public:
             // DeltaTime 계산
             float deltaTime = clock.restart().asSeconds();
 
-            // 레버를 처음 당긴 후 && 슬롯릴 애니메이션이 움직이지 않을 때
-            if (!isFirstPull && !slotReel.isAnimating) {
+            // 레버를 처음 당긴 후 && 슬롯릴 애니메이션이 움직이지 않을 때 && 모달이 안보일 때
+            if (!isFirstPull && !slotReel.isAnimating && !showModal) {
                 arrow.update(deltaTime); // 화살표 업데이트
+
+                // 경과 시간 누적
+                elapsedTime += deltaTime;
+                text.updateTime(elapsedTime); // 제한 시간 업데이트
+
+                // 3초가 지나면 게임 오버
+                if (elapsedTime >= 4.0f) {
+                    slotMachine.setGameOver(true);
+                    modal.setModalText("Game Over!\nPress R to Retry\nH to Quit");
+                    showModal = true;
+                }
             }
 
             //업데이트
@@ -573,13 +644,10 @@ public:
             slotReel.draw(window);
             lever.draw(window);
             arrow.draw(window);
-            window.draw(scoreText);
-
+            text.draw(window);
             if (showModal) {
-                window.draw(modalBackground);
-                window.draw(modalText);
+                modal.draw(window);
             }
-
             window.display();
         }
     }
