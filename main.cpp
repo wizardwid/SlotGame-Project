@@ -639,7 +639,7 @@ public:
 
     // 최고 점수 불러오기
     void loadHighScore() {
-        ifstream file("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\highScore.txt"); // 파일 경로, 읽기 전용 스트림(ifstream) 생성
+        ifstream file("highScore.txt"); // 파일 경로, 읽기 전용 스트림(ifstream) 생성
         if (file.is_open()) { // 파일 열기
             file >> highScore; // 파일에서 최고 점수를 읽어서 변수에(highScore) 저장
             file.close(); // 파일을 닫음
@@ -648,7 +648,7 @@ public:
 
     // 최고 점수 저장
     void saveHighScore() {
-        ofstream file("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\highScore.txt"); // 파일 경로, 쓰기 전용 스트림(ofStream) 생성
+        ofstream file("highScore.txt"); // 파일 경로, 쓰기 전용 스트림(ofStream) 생성
         if (file.is_open()) { // 파일 열기
             file << highScore; // highScore 값을 파일에 저장
             file.close(); // 파일 닫음
@@ -843,7 +843,7 @@ public:
     // 배경 음악 로드
     bool loadBackgroundMusic(const string& filePath) {
         if (!backgroundMusic.openFromFile(filePath)) {
-            std::cerr << "Failed to load background music: " << filePath << endl;
+            cerr << "Failed to load background music: " << filePath << endl;
             return false;
         }
         return true;
@@ -861,7 +861,7 @@ public:
     }
 
     // 사운드 정지
-    void stopSound(const std::string& name) { // 주어진 이름의 사운드를 정지
+    void stopSound(const string& name) { // 주어진 이름의 사운드를 정지
         sounds[name].stop();
     }
 
@@ -928,7 +928,7 @@ public:
         handle.setPosition(
             leverBody.getPosition().x + 100 * sin(angle * 3.14159 / 180), // lever.getPosition()은 레버의 중심 위치 가져옴
             leverBody.getPosition().y - 100 * cos(angle * 3.14159 / 180) // 3.14159 / 180 : 각도를 라디안으로 변환하는 값 (수학적 공식)
-        );
+    );
 
         // 레버 각도에 따라 연결 도형 너비 변경
         connectionWidth = 50.0f - (angle / 20.0f) * 30.0f; // 레버 각도에 비례하여 너비를 줄여줌
@@ -969,11 +969,11 @@ public:
         logo("logo2.png"), text("C:\\Windows\\Fonts\\arial.ttf"),
         modal("C:\\Windows\\Fonts\\arial.ttf") {
         // 사운드 로드
-        if (!sound.loadSound("reel", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\slot2_reel_spin_1.wav") ||
-            !sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\Tiny Button Push Sound.mp3") ||
-            !sound.loadSound("bonus", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\collect-points-190037.mp3") ||
-            !sound.loadSound("fail", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\fail-234710.mp3") ||
-            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\funny-bgm-240795.mp3"))
+        if (!sound.loadSound("reel", "Sound/slot2_reel_spin_1.wav") ||
+            !sound.loadSound("lever", "Sound/Tiny Button Push Sound.mp3") ||
+            !sound.loadSound("bonus", "Sound/collect-points-190037.mp3") ||
+            !sound.loadSound("fail", "Sound/fail-234710.mp3") ||
+            !sound.loadBackgroundMusic("Sound/funny-bgm-240795.mp3"))
         {
             throw runtime_error("Failed to load sound files");
         }
@@ -1136,8 +1136,8 @@ public:
     // 창 생성
     Game1() : window(sf::VideoMode(1024, 768), "Index", sf::Style::Close), flogo("logo.png") { // 창 최대화 비활성화
         // 사운드 로드
-        if (!sound.loadSound("lever", "C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\Tiny Button Push Sound.mp3") ||
-            !sound.loadBackgroundMusic("C:\\Users\\ungesxy.BOOK-CCUUTHN80B.000\\Desktop\\SlotGame-Project\\Sound\\doki-doki-crafting-club-194811.mp3"))
+        if (!sound.loadSound("lever", "Sound/Tiny Button Push Sound.mp3") ||
+            !sound.loadBackgroundMusic("Sound/doki-doki-crafting-club-194811.mp3"))
         {
             throw runtime_error("Failed to load sound files");
         }
